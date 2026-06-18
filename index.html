@@ -3,1135 +3,844 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ไทยช่วยไทยพลัส</title>
+<title>สัญญาจ้างงาน — EASY หมี่ไก่ฉีก</title>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --red: #C0280A; --red-dark: #961F07; --red-pale: #FDF2EF;
+    --black: #0F0F0F; --ink: #1C1C1C; --sub: #4A4A4A; --muted: #7A7A7A;
+    --rule: #D0D0D0; --rule-light: #E8E8E8; --paper: #F7F5F2; --white: #FFFFFF;
+    --success: #1A6B48; --success-bg: #EBF5F0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Prompt', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; font-size: 15px; line-height: 1.7; }
 
-:root {
-  --blue:    #1A40AA;
-  --blue2:   #0F2D7A;
-  --red:     #D61F26;
-  --bg:      #EEF3FF;
-  --white:   #FFFFFF;
-  --text:    #0B1D4A;
-  --muted:   #8A96B0;
-  --border:  #D8E2F8;
-  --green:   #27AE60;
-  --shadow:  0 2px 16px rgba(26,64,170,0.10);
-  --r:       16px;
-}
+  .app-header { background: var(--black); padding: 0 20px; display: flex; align-items: stretch; position: sticky; top: 0; z-index: 100; }
+  .header-accent { width: 4px; background: var(--red); flex-shrink: 0; margin: 0 16px 0 0; }
+  .header-body { padding: 14px 0; flex: 1; }
+  .header-org { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+  .header-title { font-size: 15px; font-weight: 700; color: var(--white); letter-spacing: 0.2px; }
 
-body {
-  font-family: 'Prompt', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  max-width: 430px;
-  margin: 0 auto;
-  font-size: 15px;
-}
+  .steps-bar { background: var(--white); border-bottom: 2px solid var(--black); display: flex; }
+  .step-item { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 8px; border-right: 1px solid var(--rule-light); transition: background 0.2s; }
+  .step-item:last-child { border-right: none; }
+  .step-item.active { background: var(--red); }
+  .step-item.done { background: var(--black); }
+  .step-num { width: 20px; height: 20px; border: 1.5px solid var(--rule); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--muted); flex-shrink: 0; }
+  .step-item.active .step-num { border-color: rgba(255,255,255,0.5); color: white; }
+  .step-item.done .step-num { border-color: var(--red); color: var(--red); }
+  .step-label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.3px; }
+  .step-item.active .step-label { color: white; }
+  .step-item.done .step-label { color: var(--rule); }
 
-/* ── HEADER ── */
-.header {
-  background: linear-gradient(135deg, var(--blue) 0%, var(--blue2) 100%);
-  padding: 18px 20px 14px;
-  position: sticky;
-  top: 0;
-  z-index: 200;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.header-icon {
-  width: 38px;
-  height: 38px;
-  background: rgba(255,255,255,0.18);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-}
-.header-text {}
-.header-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #fff;
-  line-height: 1.2;
-}
-.header-sub {
-  font-size: 11px;
-  color: rgba(255,255,255,0.72);
-  margin-top: 1px;
-}
+  .page { display: none; max-width: 560px; margin: 0 auto; padding: 20px 16px 40px; }
+  .page.active { display: block; }
 
-/* ── NAV ── */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 430px;
-  background: var(--white);
-  border-top: 1px solid var(--border);
-  display: flex;
-  z-index: 200;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-.nav-btn {
-  flex: 1;
-  padding: 10px 0 8px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  color: var(--muted);
-  font-family: 'Prompt', sans-serif;
-  font-size: 11px;
-  font-weight: 500;
-  transition: color 0.15s;
-}
-.nav-btn.active { color: var(--blue); }
-.nav-icon { font-size: 22px; line-height: 1; }
+  .block { background: var(--white); border: 1px solid var(--rule); border-top: 3px solid var(--black); margin-bottom: 12px; }
+  .block-header { padding: 12px 16px; border-bottom: 1px solid var(--rule-light); display: flex; align-items: center; gap: 10px; }
+  .block-num { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--red); text-transform: uppercase; }
+  .block-title { font-size: 13px; font-weight: 700; color: var(--black); letter-spacing: 0.3px; text-transform: uppercase; }
+  .block-body { padding: 16px; }
 
-/* ── MAIN ── */
-.main { padding: 14px 14px 90px; }
+  .field { margin-bottom: 14px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .field input, .field select {
+    width: 100%; padding: 11px 12px; border: 1.5px solid var(--rule); border-radius: 0;
+    font-family: 'Prompt', sans-serif; font-size: 15px; color: var(--ink); background: var(--white);
+    outline: none; transition: border-color 0.15s, box-shadow 0.15s; -webkit-appearance: none; appearance: none;
+  }
+  .field input:focus, .field select:focus { border-color: var(--black); box-shadow: inset 0 0 0 1px var(--black); }
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234A4A4A' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
+  }
 
-/* ── CARD ── */
-.card {
-  background: var(--white);
-  border-radius: var(--r);
-  padding: 18px;
-  margin-bottom: 10px;
-  box-shadow: var(--shadow);
-}
-.card-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
-  margin-bottom: 14px;
-}
+  .selection-badge { display: none; margin-top: 12px; padding: 10px 14px; background: var(--black); border-left: 3px solid var(--red); font-size: 13px; font-weight: 600; color: white; letter-spacing: 0.3px; }
+  .selection-badge.show { display: block; }
 
-/* ── FIELD ── */
-.field { margin-bottom: 14px; }
-.field:last-child { margin-bottom: 0; }
-.label {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--muted);
-  display: block;
-  margin-bottom: 6px;
-}
-.input {
-  width: 100%;
-  padding: 11px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: 11px;
-  font-family: 'Prompt', sans-serif;
-  font-size: 14px;
-  color: var(--text);
-  background: var(--bg);
-  transition: border-color 0.15s, background 0.15s;
-  -webkit-appearance: none;
-  appearance: none;
-}
-.input:focus {
-  outline: none;
-  border-color: var(--blue);
-  background: var(--white);
-}
+  .contract-scroll {
+    background: var(--paper); border: 1px solid var(--rule-light);
+    max-height: 380px; overflow-y: auto; padding: 20px;
+    font-size: 14.5px; font-weight: 400; line-height: 2; color: var(--ink);
+    -webkit-overflow-scrolling: touch; letter-spacing: 0.1px;
+  }
+  .contract-scroll::-webkit-scrollbar { width: 4px; }
+  .contract-scroll::-webkit-scrollbar-track { background: var(--rule-light); }
+  .contract-scroll::-webkit-scrollbar-thumb { background: var(--rule); }
+  .c-section { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px dashed var(--rule-light); }
+  .c-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .c-heading { font-size: 14px; font-weight: 700; color: var(--red); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .c-heading::before { content: ''; display: block; width: 3px; height: 12px; background: var(--red); flex-shrink: 0; }
 
-/* ── AMOUNT INPUT ── */
-.amount-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-.amount-prefix {
-  position: absolute;
-  left: 14px;
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--muted);
-  pointer-events: none;
-}
-.input.amount {
-  padding-left: 32px;
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.5px;
-}
+  .scroll-indicator { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; }
+  .scroll-indicator .arrow { animation: nudge 1.5s ease-in-out infinite; display: inline-block; }
+  @keyframes nudge { 0%,100%{transform:translateY(0)} 50%{transform:translateY(3px)} }
 
-/* ── SALE DATE DISPLAY ── */
-.sale-date-box {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 11px 14px;
-  background: #EEF3FF;
-  border: 1.5px solid #7FA8F8;
-  border-radius: 11px;
-  gap: 10px;
-}
-.sale-date-val {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text);
-}
-.sale-date-hint {
-  font-size: 11px;
-  color: var(--muted);
-  margin-top: 2px;
-}
-.link-btn {
-  font-family: 'Prompt', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--blue);
-  background: rgba(26,64,170,0.09);
-  border: none;
-  border-radius: 8px;
-  padding: 5px 10px;
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
+  .agree-row { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border-top: 2px solid var(--rule-light); cursor: pointer; background: var(--white); transition: background 0.15s; }
+  .agree-row.checked { background: var(--red-pale); border-top-color: var(--red); }
+  .checkbox { width: 20px; height: 20px; border: 2px solid var(--rule); flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 2px; transition: all 0.15s; background: white; }
+  .agree-row.checked .checkbox { background: var(--red); border-color: var(--red); }
+  .agree-row.checked .checkbox::after { content: ''; display: block; width: 5px; height: 9px; border: 2px solid white; border-top: none; border-left: none; transform: rotate(45deg) translate(-1px, -1px); }
+  .agree-text { font-size: 13.5px; color: var(--ink); line-height: 1.6; }
+  .agree-text strong { color: var(--red); font-weight: 700; }
 
-/* ── BRANCHES ── */
-.branch-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-.branch-pill {
-  padding: 11px 6px;
-  border: 1.5px solid var(--border);
-  border-radius: 11px;
-  background: var(--bg);
-  cursor: pointer;
-  font-family: 'Prompt', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--muted);
-  text-align: center;
-  transition: all 0.15s;
-  line-height: 1.3;
-}
-.branch-pill.active {
-  border-color: var(--blue);
-  background: rgba(26,64,170,0.07);
-  color: var(--blue);
-  font-weight: 600;
-}
+  .btn-sig-tap { width: 100%; padding: 20px; background: var(--paper); border: 2px dashed var(--rule); font-family: 'Prompt', sans-serif; font-size: 15px; font-weight: 600; color: var(--sub); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.15s; }
+  .btn-sig-tap:active { background: var(--rule-light); }
+  .sig-done-wrap { border: 1.5px solid var(--success); background: var(--success-bg); padding: 16px; text-align: center; }
+  .sig-done-label { font-size: 12px; font-weight: 700; color: var(--success); letter-spacing: 0.5px; margin-top: 10px; text-transform: uppercase; }
+  .btn-sig-redo { font-family: 'Prompt', sans-serif; font-size: 11px; font-weight: 600; color: var(--muted); background: none; border: 1px solid var(--rule); padding: 5px 14px; cursor: pointer; margin-top: 10px; }
+  .btn-clear { font-family: 'Prompt', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--muted); background: none; border: 1px solid var(--rule); padding: 4px 10px; cursor: pointer; border-radius: 0; transition: all 0.15s; }
+  .btn-clear:hover { border-color: var(--black); color: var(--black); }
 
-/* ── PRIMARY BUTTON ── */
-.btn-primary {
-  width: 100%;
-  padding: 15px;
-  background: linear-gradient(135deg, var(--blue) 0%, var(--blue2) 100%);
-  color: white;
-  border: none;
-  border-radius: 13px;
-  font-family: 'Prompt', sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.15s, transform 0.1s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-.btn-primary:active { opacity: 0.85; transform: scale(0.99); }
-.btn-primary:disabled { opacity: 0.45; cursor: default; transform: none; }
+  .upload-list { display: flex; flex-direction: column; }
+  .upload-row { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-bottom: 1px solid var(--rule-light); cursor: pointer; background: var(--white); transition: background 0.15s; }
+  .upload-row:last-child { border-bottom: none; }
+  .upload-row:active { background: var(--paper); }
+  .upload-row.has-file { background: var(--success-bg); }
+  .doc-index { width: 28px; height: 28px; border: 1.5px solid var(--rule); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--muted); flex-shrink: 0; transition: all 0.15s; }
+  .upload-row.has-file .doc-index { border-color: var(--success); color: var(--success); }
+  .doc-info { flex: 1; min-width: 0; }
+  .doc-name { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+  .doc-hint { font-size: 11px; color: var(--muted); font-weight: 500; }
+  .upload-row.has-file .doc-hint { color: var(--success); font-weight: 600; }
+  .doc-preview { width: 44px; height: 44px; object-fit: cover; display: none; border: 1px solid var(--rule-light); flex-shrink: 0; }
+  .upload-row.has-file .doc-preview { display: block; }
+  .upload-arrow { font-size: 14px; color: var(--rule); flex-shrink: 0; }
+  .upload-row.has-file .upload-arrow { color: var(--success); }
 
-/* ── TOAST ── */
-.toast {
-  position: fixed;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%) translateY(0);
-  background: var(--text);
-  color: white;
-  padding: 11px 20px;
-  border-radius: 50px;
-  font-size: 13px;
-  font-weight: 500;
-  white-space: nowrap;
-  z-index: 999;
-  opacity: 0;
-  transition: opacity 0.25s, transform 0.25s;
-  pointer-events: none;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-}
-.toast.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(-4px);
-}
+  .btn-primary { width: 100%; padding: 15px 20px; background: var(--black); color: white; border: none; border-radius: 0; font-family: 'Prompt', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: background 0.15s; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 4px; border-left: 4px solid var(--red); }
+  .btn-primary:hover { background: #2A2A2A; }
+  .btn-primary:active { background: var(--red-dark); }
+  .btn-primary:disabled { background: var(--rule); border-left-color: var(--rule); color: var(--muted); cursor: not-allowed; }
+  .btn-back { width: 100%; padding: 13px 20px; background: transparent; color: var(--sub); border: 1px solid var(--rule); border-radius: 0; font-family: 'Prompt', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; margin-top: 8px; transition: all 0.15s; }
+  .btn-back:hover { border-color: var(--black); color: var(--black); }
 
-/* ── DASHBOARD FILTERS ── */
-.filter-row {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-.filter-row .input {
-  flex: 1;
-  font-size: 13px;
-  padding: 9px 10px;
-}
-.filter-sep {
-  color: var(--muted);
-  font-size: 13px;
-  flex-shrink: 0;
-}
-.quick-btns {
-  display: flex;
-  gap: 6px;
-  margin-top: 10px;
-  flex-wrap: wrap;
-}
-.qbtn {
-  padding: 7px 12px;
-  border: 1.5px solid var(--border);
-  border-radius: 50px;
-  background: var(--bg);
-  font-family: 'Prompt', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--muted);
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.qbtn:hover, .qbtn.active { border-color: var(--blue); color: var(--blue); background: rgba(26,64,170,0.06); }
-.btn-go {
-  padding: 9px 18px;
-  background: linear-gradient(135deg, var(--blue) 0%, var(--blue2) 100%);
-  color: white;
-  border: none;
-  border-radius: 50px;
-  font-family: 'Prompt', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 10px;
-  width: 100%;
-  transition: opacity 0.15s;
-}
-.btn-go:active { opacity: 0.85; }
+  .progress-block { display: none; background: var(--white); border: 1px solid var(--rule); border-top: 3px solid var(--black); padding: 16px; margin-bottom: 12px; }
+  .progress-label { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--sub); margin-bottom: 10px; }
+  .progress-track { background: var(--rule-light); height: 4px; width: 100%; }
+  .progress-fill { height: 100%; background: var(--black); transition: width 0.4s ease; width: 0%; }
 
-/* ── SUMMARY TOTAL ── */
-.total-card {
-  background: linear-gradient(135deg, var(--blue) 0%, var(--blue2) 100%);
-  border-radius: var(--r);
-  padding: 20px;
-  margin-bottom: 10px;
-  color: white;
-  box-shadow: 0 6px 24px rgba(26,64,170,0.30);
-  position: relative;
-  overflow: hidden;
-}
-.total-card::after {
-  content: '';
-  position: absolute;
-  top: 0; right: 0;
-  width: 6px; height: 100%;
-  background: linear-gradient(180deg, var(--red) 33%, white 33%, white 66%, var(--blue2) 66%);
-  opacity: 0.7;
-}
-.total-label {
-  font-size: 12px;
-  opacity: 0.8;
-  font-weight: 500;
-}
-.total-amount {
-  font-size: 36px;
-  font-weight: 700;
-  letter-spacing: -1px;
-  margin: 4px 0 2px;
-  line-height: 1;
-}
-.total-meta {
-  font-size: 12px;
-  opacity: 0.75;
-}
+  .notice { border-left: 3px solid var(--rule); padding: 12px 14px; background: var(--paper); margin-bottom: 12px; font-size: 13px; color: var(--sub); line-height: 1.65; }
+  .notice strong { color: var(--ink); }
 
-/* ── BRANCH SUMMARY GRID ── */
-.branch-grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-.bcard {
-  background: var(--white);
-  border-radius: 13px;
-  padding: 14px;
-  box-shadow: var(--shadow);
-}
-.bcard-name {
-  font-size: 11px;
-  color: var(--muted);
-  font-weight: 500;
-  margin-bottom: 6px;
-}
-.bcard-amount {
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--text);
-}
-.bcard-count {
-  font-size: 11px;
-  color: var(--muted);
-  margin-top: 2px;
-}
-.bcard-bar {
-  height: 3px;
-  background: var(--border);
-  border-radius: 99px;
-  margin-top: 8px;
-  overflow: hidden;
-}
-.bcard-bar-fill {
-  height: 100%;
-  background: var(--blue);
-  border-radius: 99px;
-  transition: width 0.6s ease;
-}
+  .error-msg { display: none; font-size: 12px; font-weight: 600; color: var(--red); padding: 10px 12px; background: var(--red-pale); border-left: 3px solid var(--red); margin-top: 10px; }
+  .error-msg.show { display: block; }
 
-/* ── RECORDS LIST ── */
-.record-item {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: 13px 0;
-  border-bottom: 1px solid var(--border);
-}
-.record-item:last-child { border-bottom: none; }
-.record-left { flex: 1; min-width: 0; }
-.record-sale-date {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-}
-.record-branch-tag {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 500;
-  background: rgba(26,64,170,0.09);
-  color: var(--blue);
-  padding: 2px 8px;
-  border-radius: 50px;
-  margin: 4px 0;
-}
-.record-received-date {
-  font-size: 11px;
-  color: var(--muted);
-}
-.record-notes {
-  font-size: 11px;
-  color: var(--muted);
-  font-style: italic;
-  margin-top: 2px;
-}
-.record-amount {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text);
-  margin-left: 12px;
-  white-space: nowrap;
-}
+  /* PIN */
+  .pin-page { padding: 28px 16px 48px; max-width: 560px; margin: 0 auto; }
+  .pin-card { background: var(--white); border: 1px solid var(--rule); border-top: 3px solid var(--black); padding: 28px 20px; text-align: center; }
+  .pin-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .pin-heading { font-size: 20px; font-weight: 700; color: var(--black); margin-bottom: 6px; }
+  .pin-sub { font-size: 13px; color: var(--sub); line-height: 1.65; margin-bottom: 24px; }
+  .pin-dots { display: flex; justify-content: center; gap: 12px; margin: 16px 0 8px; }
+  .pin-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--rule); background: transparent; transition: all 0.15s; }
+  .pin-dot.filled { background: var(--black); border-color: var(--black); }
+  .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
+  .num-btn { padding: 18px; background: var(--paper); border: 1.5px solid var(--rule); font-family: 'Prompt', sans-serif; font-size: 22px; font-weight: 600; color: var(--ink); cursor: pointer; transition: all 0.1s; border-radius: 0; }
+  .num-btn:active { background: var(--black); color: white; border-color: var(--black); transform: scale(0.96); }
+  .num-btn.del { font-size: 16px; color: var(--muted); }
+  .num-btn.empty { background: transparent; border-color: transparent; cursor: default; }
+  .pin-step-label { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
 
-/* ── EMPTY / LOADING ── */
-.empty-state {
-  text-align: center;
-  padding: 48px 20px;
-  color: var(--muted);
-}
-.empty-state .e-icon { font-size: 44px; margin-bottom: 12px; }
-.empty-state p { font-size: 14px; line-height: 1.6; }
-.loading-state {
-  text-align: center;
-  padding: 40px;
-  color: var(--muted);
-  font-size: 14px;
-}
+  /* Success */
+  .success-wrap { padding: 48px 24px; text-align: center; }
+  .success-mark { width: 64px; height: 64px; background: var(--success); display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; animation: appear 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  @keyframes appear { from{transform:scale(0)} to{transform:scale(1)} }
+  .success-mark svg { width: 28px; height: 28px; stroke: white; fill: none; stroke-width: 2.5; }
+  .success-heading { font-size: 20px; font-weight: 700; color: var(--black); margin-bottom: 8px; }
+  .success-sub { font-size: 14px; color: var(--sub); line-height: 1.7; }
+  .success-ref { margin-top: 28px; padding: 12px 16px; border: 1px solid var(--rule); background: var(--paper); font-size: 12px; color: var(--muted); font-weight: 500; }
+  .pin-display-box { margin-top: 24px; border: 2px solid var(--black); padding: 24px 20px; }
+  .pin-display-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .pin-display-num { font-size: 52px; font-weight: 700; color: var(--black); letter-spacing: 12px; line-height: 1; }
 
-/* ── VIEWS ── */
-.view { display: none; }
-.view.active { display: block; }
+  /* Card scanner */
+  #cardScanModal { display: none; position: fixed; inset: 0; z-index: 400; background: #000; flex-direction: column; }
+  #scanVideo { width: 100%; height: 100%; object-fit: cover; }
+  .scan-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+  .scan-dim { position: absolute; inset: 0; background: rgba(0,0,0,0.55); }
+  .scan-frame {
+    position: relative; z-index: 1;
+    width: 88%; max-width: 360px;
+    aspect-ratio: 85.6 / 54;
+    border: 2.5px solid white;
+    border-radius: 12px;
+    box-shadow: 0 0 0 9999px rgba(0,0,0,0.55);
+  }
+  .scan-corner { position: absolute; width: 24px; height: 24px; }
+  .scan-corner.tl { top: -3px; left: -3px; border-top: 4px solid #E5C100; border-left: 4px solid #E5C100; border-radius: 4px 0 0 0; }
+  .scan-corner.tr { top: -3px; right: -3px; border-top: 4px solid #E5C100; border-right: 4px solid #E5C100; border-radius: 0 4px 0 0; }
+  .scan-corner.bl { bottom: -3px; left: -3px; border-bottom: 4px solid #E5C100; border-left: 4px solid #E5C100; border-radius: 0 0 0 4px; }
+  .scan-corner.br { bottom: -3px; right: -3px; border-bottom: 4px solid #E5C100; border-right: 4px solid #E5C100; border-radius: 0 0 4px 0; }
+  .scan-label { position: relative; z-index: 1; margin-top: 20px; text-align: center; }
+  .scan-label-title { font-size: 15px; font-weight: 700; color: white; margin-bottom: 6px; }
+  .scan-label-sub { font-size: 12px; color: rgba(255,255,255,0.75); }
+  .scan-hints { position: relative; z-index: 1; margin-top: 16px; display: flex; flex-direction: column; gap: 8px; padding: 0 32px; }
+  .scan-hint { font-size: 12px; color: white; display: flex; gap: 8px; align-items: center; }
+  .scan-hint-dot { width: 8px; height: 8px; border-radius: 50%; background: #4CAF50; flex-shrink: 0; }
+  .scan-btns { position: absolute; bottom: 0; left: 0; right: 0; padding: 24px 20px; padding-bottom: calc(24px + env(safe-area-inset-bottom,0px)); display: flex; gap: 12px; z-index: 2; }
+  .scan-btn-cancel { flex: 1; padding: 14px; background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.4); color: white; font-family: 'Prompt',sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; border-radius: 0; }
+  .scan-btn-shoot { flex: 2; padding: 14px; background: white; border: none; border-left: 4px solid var(--red); color: #0F0F0F; font-family: 'Prompt',sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; border-radius: 0; }
 
-/* ── CHART ── */
-.chart-wrap {
-  position: relative;
-  width: 100%;
-  height: 220px;
-}
-.chart-wrap-sm {
-  height: 180px;
-}
-
-/* ── CHART LEGEND ── */
-.chart-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 14px;
-  margin-top: 14px;
-}
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--text);
-  font-weight: 500;
-}
-.legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
-  flex-shrink: 0;
-}
-
-/* ── CHART TABS ── */
-.chart-tabs {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 14px;
-}
-.ctab {
-  padding: 5px 12px;
-  border: 1.5px solid var(--border);
-  border-radius: 50px;
-  background: var(--bg);
-  font-family: 'Prompt', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--muted);
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.ctab.active {
-  border-color: var(--blue);
-  background: rgba(26,64,170,0.07);
-  color: var(--blue);
-}
-
-/* ── BRANCH COMPARE ROWS ── */
-.compare-row {
-  margin-bottom: 12px;
-}
-.compare-row:last-child { margin-bottom: 0; }
-.compare-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 5px;
-}
-.compare-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-.compare-dot {
-  width: 9px; height: 9px;
-  border-radius: 3px;
-  flex-shrink: 0;
-}
-.compare-right {
-  text-align: right;
-}
-.compare-amount {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text);
-}
-.compare-pct {
-  font-size: 11px;
-  color: var(--muted);
-  margin-left: 6px;
-}
-.compare-bar-track {
-  height: 8px;
-  background: var(--border);
-  border-radius: 99px;
-  overflow: hidden;
-}
-.compare-bar-fill {
-  height: 100%;
-  border-radius: 99px;
-  transition: width 0.7s cubic-bezier(.4,0,.2,1);
-}
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--black); color: white; padding: 11px 20px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; z-index: 999; transition: transform 0.25s; white-space: nowrap; border-left: 3px solid var(--red); }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .mt12 { margin-top: 12px; }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="header-icon">🇹🇭</div>
-  <div class="header-text">
-    <div class="header-title">ไทยช่วยไทยพลัส</div>
-    <div class="header-sub">บันทึกยอดขายรายสาขา</div>
+<div class="app-header">
+  <div class="header-accent"></div>
+  <div class="header-body">
+    <div class="header-org">ห้างหุ้นส่วนจำกัด คีพ อิท อีซี่</div>
+    <div class="header-title" id="headerTitle">EASY หมี่ไก่ฉีก — สัญญาจ้างงาน</div>
   </div>
 </div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
-<!-- MAIN -->
-<div class="main">
-
-  <!-- ── VIEW: บันทึก ── -->
-  <div class="view active" id="view-record">
-
-    <!-- DATE CARD -->
-    <div class="card">
-      <div class="card-label">📅 วันที่</div>
-
-      <div class="field">
-        <label class="label">วันที่รับเงินเข้าบัญชี</label>
-        <input type="date" class="input" id="received-date">
-      </div>
-
-      <div class="field">
-        <label class="label">วันที่ขายจริง (ลบ 3 วัน อัตโนมัติ)</label>
-        <div class="sale-date-box" id="sale-date-auto">
-          <div>
-            <div class="sale-date-val" id="sale-date-text">—</div>
-            <div class="sale-date-hint">คำนวณจากวันรับเงิน −3 วัน</div>
-          </div>
-          <button class="link-btn" id="edit-sale-toggle" onclick="toggleSaleDateMode()">แก้ไขเอง</button>
-        </div>
-        <input type="date" class="input" id="sale-date-manual" style="display:none; margin-top:8px;">
-      </div>
-    </div>
-
-    <!-- BRANCH CARD -->
-    <div class="card">
-      <div class="card-label">🏪 สาขา</div>
-      <div class="branch-grid" id="branch-grid">
-        <button class="branch-pill" data-b="อมตะนคร"   onclick="pickBranch(this)">อมตะนคร</button>
-        <button class="branch-pill" data-b="พระยาสัจจา" onclick="pickBranch(this)">พระยาสัจจา</button>
-        <button class="branch-pill" data-b="บางแสน"     onclick="pickBranch(this)">บางแสน</button>
-        <button class="branch-pill" data-b="อ่าวอุดม"   onclick="pickBranch(this)">อ่าวอุดม</button>
-      </div>
-    </div>
-
-    <!-- AMOUNT CARD -->
-    <div class="card">
-      <div class="card-label">💰 ยอดเงิน</div>
-      <div class="field">
-        <div class="amount-wrap">
-          <span class="amount-prefix">฿</span>
-          <input type="number" class="input amount" id="amount"
-                 placeholder="0.00" inputmode="decimal" step="0.01" min="0">
-        </div>
-      </div>
-      <div class="field">
-        <label class="label">หมายเหตุ (ไม่บังคับ)</label>
-        <input type="text" class="input" id="notes" placeholder="เช่น โอนมาช้า, แยก 2 งวด…">
-      </div>
-    </div>
-
-    <button class="btn-primary" id="submit-btn" onclick="submitRecord()">
-      <span>บันทึกยอด</span>
-    </button>
-
-  </div><!-- /view-record -->
-
-
-  <!-- ── VIEW: แดชบอร์ด ── -->
-  <div class="view" id="view-dashboard">
-
-    <div class="card">
-      <div class="card-label">📆 เลือกช่วงวันที่ขาย</div>
-      <div class="filter-row">
-        <input type="date" class="input" id="dash-start">
-        <span class="filter-sep">–</span>
-        <input type="date" class="input" id="dash-end">
-      </div>
-      <div class="quick-btns">
-        <button class="qbtn" onclick="setRange('week')">7 วันล่าสุด</button>
-        <button class="qbtn" onclick="setRange('month')">เดือนนี้</button>
-        <button class="qbtn" onclick="setRange('lastmonth')">เดือนที่แล้ว</button>
-      </div>
-      <button class="btn-go" onclick="loadDashboard()">ดูยอด →</button>
-    </div>
-
-    <div id="dash-content">
-      <div class="empty-state">
-        <div class="e-icon">📊</div>
-        <p>เลือกช่วงวันที่<br>แล้วกด "ดูยอด"</p>
-      </div>
-    </div>
-
-  </div><!-- /view-dashboard -->
-
-</div><!-- /main -->
-
-<!-- BOTTOM NAV -->
-<div class="bottom-nav">
-  <button class="nav-btn active" id="nav-record" onclick="switchView('record')">
-    <span class="nav-icon">✏️</span>
-    บันทึก
-  </button>
-  <button class="nav-btn" id="nav-dashboard" onclick="switchView('dashboard')">
-    <span class="nav-icon">📊</span>
-    แดชบอร์ด
-  </button>
+<div class="steps-bar">
+  <div class="step-item active" id="step1"><div class="step-num">1</div><div class="step-label">สัญญา</div></div>
+  <div class="step-item" id="step2"><div class="step-num">2</div><div class="step-label">เอกสาร</div></div>
+  <div class="step-item" id="step3"><div class="step-num">3</div><div class="step-label">รหัส</div></div>
+  <div class="step-item" id="step4"><div class="step-num">4</div><div class="step-label">เสร็จสิ้น</div></div>
 </div>
 
+
+<!-- ══════ PAGE 1 ══════ -->
+<div class="page active" id="page1">
+
+  <div class="block mt12">
+    <div class="block-header">
+      <div class="block-num">01</div>
+      <div class="block-title">ตำแหน่งงานและสาขา</div>
+    </div>
+    <div class="block-body">
+      <div class="field">
+        <label>ตำแหน่ง *</label>
+        <select id="selType" onchange="onSelectionChange()">
+          <option value="">— เลือกตำแหน่ง —</option>
+          <option value="fulltime">พนักงานประจำสาขา</option>
+          <option value="parttime">พนักงานพาร์ทไทม์</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>สาขา *</label>
+        <select id="selBranch" onchange="onSelectionChange()">
+          <option value="">— เลือกสาขา —</option>
+          <option value="อมตะนคร">อมตะนคร</option>
+          <option value="พระยาสัจจา">พระยาสัจจา</option>
+          <option value="บางแสน">บางแสน</option>
+          <option value="อ่าวอุดม">อ่าวอุดม</option>
+          <option value="พัทยากลาง">พัทยากลาง</option>
+        </select>
+      </div>
+      <div class="selection-badge" id="selectionBadge"></div>
+    </div>
+  </div>
+
+  <div class="block" id="blockEmpInfo" style="display:none;">
+    <div class="block-header">
+      <div class="block-num">02</div>
+      <div class="block-title">ข้อมูลพนักงาน</div>
+    </div>
+    <div class="block-body">
+      <div class="field">
+        <label>ชื่อ–นามสกุล *</label>
+        <input type="text" id="empName">
+      </div>
+      <div class="field">
+        <label>ชื่อเล่น *</label>
+        <input type="text" id="empNickname">
+      </div>
+      <div class="field">
+        <label>เบอร์โทรศัพท์ *</label>
+        <input type="tel" id="empPhone" inputmode="tel">
+      </div>
+    </div>
+  </div>
+
+  <div class="block" id="blockContract" style="display:none;">
+    <div class="block-header">
+      <div class="block-num">03</div>
+      <div class="block-title">เงื่อนไขสัญญาจ้างงาน</div>
+    </div>
+    <div class="block-body" style="padding-bottom:0;">
+      <div class="scroll-indicator"><span class="arrow">↓</span> เลื่อนอ่านให้ครบก่อนยืนยัน</div>
+      <div class="contract-scroll" id="contractBody"></div>
+    </div>
+    <div class="agree-row" id="agreeRow" onclick="toggleAgree()">
+      <div class="checkbox" id="chk"></div>
+      <div class="agree-text">ข้าพเจ้าได้อ่านและ<strong>เข้าใจเงื่อนไขสัญญาทั้งหมดแล้ว</strong> และยินยอมปฏิบัติตามทุกข้อ</div>
+    </div>
+  </div>
+
+  <div class="block" id="blockSig" style="display:none;">
+    <div class="block-header">
+      <div class="block-num">04</div>
+      <div class="block-title">ลายมือชื่อพนักงาน</div>
+    </div>
+    <div class="block-body" style="padding:16px;">
+      <div id="sigStateEmpty">
+        <button class="btn-sig-tap" onclick="openSigModal()">
+          <span style="font-size:20px;">✍️</span> แตะเพื่อเซ็นลายเซ็น
+        </button>
+      </div>
+      <div id="sigStateDone" style="display:none;">
+        <div class="sig-done-wrap">
+          <img id="sigPreviewImg" style="max-height:100px; max-width:100%; display:block; margin:0 auto;">
+          <div class="sig-done-label">ลายเซ็นยืนยันแล้ว ✓</div>
+          <button class="btn-sig-redo" onclick="redoSig()">เซ็นใหม่</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sig Modal -->
+  <div id="sigModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:200; flex-direction:column; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:white; width:100%; max-width:480px; border-top:3px solid var(--black);">
+      <div style="padding:14px 16px; border-bottom:1px solid var(--rule-light); display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">เซ็นลายมือชื่อ</span>
+        <span style="font-size:11px; color:var(--muted);">วาดลายเซ็นในกรอบด้านล่าง</span>
+      </div>
+      <div style="position:relative; touch-action:none; background:#FAFAF8;">
+        <canvas id="sigCanvas" height="200" style="display:block; width:100%; cursor:crosshair;"></canvas>
+        <div id="sigPH" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none;">
+          <div style="font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#C8C8C8;">ลงลายมือชื่อในกรอบนี้</div>
+        </div>
+      </div>
+      <div style="padding:12px 16px; border-top:1px solid var(--rule-light); background:var(--paper); display:flex; gap:10px;">
+        <button class="btn-clear" onclick="clearSigModal()" style="flex:1;">ลบ</button>
+        <button class="btn-primary" onclick="confirmSig()" style="flex:2; margin-top:0; padding:11px; font-size:12px; border-left-width:3px;">ยืนยันลายเซ็น</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="error-msg" id="err1">กรุณากรอกข้อมูลให้ครบ, เลือกตำแหน่งและสาขา, ยืนยันเงื่อนไข และเซ็นลายมือชื่อ</div>
+  <button class="btn-primary" onclick="goToPage2()" style="margin-top:12px;">ถัดไป — อัพโหลดเอกสาร →</button>
+
+</div>
+
+
+<!-- ══════ PAGE 2 ══════ -->
+<div class="page" id="page2">
+  <div class="block mt12">
+    <div class="block-header">
+      <div class="block-num">05</div>
+      <div class="block-title">เอกสารประกอบการจ้างงาน</div>
+    </div>
+    <div class="upload-list">
+
+      <div class="upload-row" id="urow1" onclick="openPicker(1)">
+        <div class="doc-index">1</div>
+        <div class="doc-info">
+          <div class="doc-name">บัตรประชาชน <span style="font-weight:400; color:var(--muted); font-size:12px;">(สำเนาได้)</span></div>
+          <div class="doc-hint" id="sub1">กดเพื่อเลือกวิธีอัพโหลด</div>
+        </div>
+        <img class="doc-preview" id="prev1">
+        <div class="upload-arrow" id="arr1">→</div>
+      </div>
+
+      <div class="upload-row" id="urow2" onclick="openPicker(2)">
+        <div class="doc-index">2</div>
+        <div class="doc-info">
+          <div class="doc-name">สำเนาทะเบียนบ้าน</div>
+          <div class="doc-hint" id="sub2">กดเพื่อถ่ายรูปหรือเลือกไฟล์</div>
+        </div>
+        <img class="doc-preview" id="prev2">
+        <div class="upload-arrow" id="arr2">→</div>
+      </div>
+
+      <div class="upload-row" id="urow3" onclick="openPicker(3)">
+        <div class="doc-index">3</div>
+        <div class="doc-info">
+          <div class="doc-name">สำเนาหน้าสมุดบัญชี</div>
+          <div class="doc-hint" id="sub3">บัญชีที่ใช้รับค่าจ้าง</div>
+        </div>
+        <img class="doc-preview" id="prev3">
+        <div class="upload-arrow" id="arr3">→</div>
+      </div>
+
+    </div>
+    <input id="inputCam" type="file" accept="image/*" capture="environment" style="display:none;" onchange="handleFile(this)">
+    <input id="inputGal" type="file" accept="image/*" style="display:none;" onchange="handleFile(this)">
+  </div>
+
+  <div class="notice"><strong>หมายเหตุ:</strong> เอกสารทั้งหมดจะถูกจัดเก็บอย่างปลอดภัยและใช้เพื่อการดำเนินงานด้านทรัพยากรบุคคลเท่านั้น</div>
+  <div class="error-msg" id="err2">กรุณาอัพโหลดเอกสารให้ครบทั้ง 3 รายการ</div>
+  <button class="btn-primary" id="btnSubmit" onclick="submitAll()">ถัดไป — ตั้งรหัส PIN →</button>
+  <button class="btn-back" onclick="goToPage1()">← ย้อนกลับ</button>
+</div>
+
+
+<!-- ══════ PAGE 3 — PIN ══════ -->
+<div class="page" id="page3">
+  <div class="progress-block" id="progressBlock" style="max-width:560px; margin:12px auto 0;">
+    <div class="progress-label" id="progressLabel">กำลังส่งข้อมูล...</div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+  <div class="pin-page">
+    <div class="pin-card">
+
+      <div id="pinStepA">
+        <div class="pin-eyebrow">ขั้นตอนที่ 3 จาก 4</div>
+        <div class="pin-heading">ตั้งรหัส PIN ของคุณ</div>
+        <div class="pin-sub">รหัส 4 หลัก — ใช้สำหรับลงเวลาเข้า-ออกงานในระบบ<br>ห้ามบอกรหัสให้ผู้อื่น</div>
+        <div class="pin-step-label">กรอกรหัส PIN ใหม่</div>
+        <div class="pin-dots">
+          <div class="pin-dot" id="dA0"></div><div class="pin-dot" id="dA1"></div>
+          <div class="pin-dot" id="dA2"></div><div class="pin-dot" id="dA3"></div>
+        </div>
+        <div class="numpad">
+          <button class="num-btn" onclick="typePin('A','1')">1</button>
+          <button class="num-btn" onclick="typePin('A','2')">2</button>
+          <button class="num-btn" onclick="typePin('A','3')">3</button>
+          <button class="num-btn" onclick="typePin('A','4')">4</button>
+          <button class="num-btn" onclick="typePin('A','5')">5</button>
+          <button class="num-btn" onclick="typePin('A','6')">6</button>
+          <button class="num-btn" onclick="typePin('A','7')">7</button>
+          <button class="num-btn" onclick="typePin('A','8')">8</button>
+          <button class="num-btn" onclick="typePin('A','9')">9</button>
+          <button class="num-btn empty"></button>
+          <button class="num-btn" onclick="typePin('A','0')">0</button>
+          <button class="num-btn del" onclick="delPin('A')">⌫</button>
+        </div>
+      </div>
+
+      <div id="pinStepB" style="display:none;">
+        <div class="pin-eyebrow">ขั้นตอนที่ 3 จาก 4</div>
+        <div class="pin-heading">ยืนยันรหัส PIN</div>
+        <div class="pin-sub">กรอกรหัสเดิมอีกครั้งเพื่อยืนยัน</div>
+        <div class="pin-step-label">กรอกรหัส PIN อีกครั้ง</div>
+        <div class="pin-dots">
+          <div class="pin-dot" id="dB0"></div><div class="pin-dot" id="dB1"></div>
+          <div class="pin-dot" id="dB2"></div><div class="pin-dot" id="dB3"></div>
+        </div>
+        <div class="error-msg" id="errPin" style="margin:8px 0;">รหัสไม่ตรงกัน — กรุณาลองใหม่</div>
+        <div class="numpad">
+          <button class="num-btn" onclick="typePin('B','1')">1</button>
+          <button class="num-btn" onclick="typePin('B','2')">2</button>
+          <button class="num-btn" onclick="typePin('B','3')">3</button>
+          <button class="num-btn" onclick="typePin('B','4')">4</button>
+          <button class="num-btn" onclick="typePin('B','5')">5</button>
+          <button class="num-btn" onclick="typePin('B','6')">6</button>
+          <button class="num-btn" onclick="typePin('B','7')">7</button>
+          <button class="num-btn" onclick="typePin('B','8')">8</button>
+          <button class="num-btn" onclick="typePin('B','9')">9</button>
+          <button class="num-btn empty"></button>
+          <button class="num-btn" onclick="typePin('B','0')">0</button>
+          <button class="num-btn del" onclick="delPin('B')">⌫</button>
+        </div>
+        <button class="btn-back" onclick="resetPinA()" style="margin-top:16px;">← ตั้งรหัสใหม่</button>
+      </div>
+
+      <div id="pinSaving" style="display:none; padding:40px 0;">
+        <div style="font-size:13px; font-weight:600; color:var(--sub); letter-spacing:0.5px;">กำลังบันทึกข้อมูล...</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════ PAGE 4 — Success ══════ -->
+<div class="page" id="page4">
+  <div class="success-wrap">
+    <div class="success-mark">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="success-heading">ลงทะเบียนเสร็จสมบูรณ์</div>
+    <p class="success-sub">สัญญา เอกสาร และรหัส PIN ของคุณถูกบันทึกในระบบเรียบร้อยแล้ว</p>
+    <div class="pin-display-box">
+      <div class="pin-display-label">รหัส PIN ของคุณ — ใช้สำหรับลงเวลางาน</div>
+      <div class="pin-display-num" id="finalPinDisplay">——</div>
+    </div>
+    <div style="margin-top:12px; font-size:12px; color:var(--muted); font-weight:500;">
+      กรุณาจดจำหรือบันทึกภาพหน้าจอรหัสนี้ไว้<br>ห้ามบอกรหัสให้ผู้อื่น
+    </div>
+    <div id="successRef" class="success-ref"></div>
+  </div>
+</div>
+
+
+<!-- Upload picker -->
+<div id="pickerOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:300;" onclick="closePicker()"></div>
+<div id="pickerSheet" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:301; background:white; border-top:3px solid var(--black); max-width:560px; margin:0 auto;">
+  <div style="padding:14px 16px; border-bottom:1px solid var(--rule-light);">
+    <div style="font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted);" id="pickerTitle">เลือกวิธีอัพโหลด</div>
+  </div>
+
+  <!-- ตัวเลือกพิเศษ: สแกนบัตรจริง (แสดงเฉพาะเอกสาร 1) -->
+  <div id="optionScan" onclick="chooseCardScan()" style="display:none; padding:16px; border-bottom:1px solid var(--rule-light); font-size:15px; font-weight:600; color:var(--ink); cursor:pointer; align-items:center; gap:14px; background:var(--red-pale);">
+    <span style="width:36px;height:36px;background:var(--red);border:1.5px solid var(--red);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🪪</span>
+    <div>
+      <div>สแกนบัตรประชาชนตัวจริง</div>
+      <div style="font-size:11px; font-weight:500; color:var(--red-dark); margin-top:2px;">มีกรอบช่วยจัดวางบัตร</div>
+    </div>
+  </div>
+
+  <div onclick="chooseCamera()" style="padding:16px; border-bottom:1px solid var(--rule-light); font-size:15px; font-weight:600; color:var(--ink); cursor:pointer; display:flex; align-items:center; gap:14px;">
+    <span style="width:36px;height:36px;background:var(--paper);border:1.5px solid var(--rule);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">📷</span>
+    ถ่ายรูป<span id="cameraLabel" style="font-size:12px;font-weight:400;color:var(--muted);margin-left:4px;"></span>
+  </div>
+  <div onclick="chooseGallery()" style="padding:16px; font-size:15px; font-weight:600; color:var(--ink); cursor:pointer; display:flex; align-items:center; gap:14px; margin-bottom:env(safe-area-inset-bottom,0px);">
+    <span style="width:36px;height:36px;background:var(--paper);border:1.5px solid var(--rule);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🖼</span>
+    เลือกจากแกลเลอรี่
+  </div>
+</div>
+
+
+<!-- Card Scanner Modal -->
+<div id="cardScanModal">
+  <video id="scanVideo" autoplay playsinline muted></video>
+  <div class="scan-overlay">
+    <div class="scan-dim"></div>
+    <div class="scan-frame">
+      <div class="scan-corner tl"></div>
+      <div class="scan-corner tr"></div>
+      <div class="scan-corner bl"></div>
+      <div class="scan-corner br"></div>
+    </div>
+    <div class="scan-label">
+      <div class="scan-label-title">สแกนบัตรประชาชน</div>
+      <div class="scan-label-sub">วางบัตรให้อยู่ในกรอบให้ครบ</div>
+    </div>
+    <div class="scan-hints">
+      <div class="scan-hint"><div class="scan-hint-dot"></div>หลีกเลี่ยงแสงสะท้อน ไม่มีมือหรือวางเกินกรอบ</div>
+      <div class="scan-hint"><div class="scan-hint-dot"></div>รูปไม่เบลอ เห็นตัวอักษรชัดเจน และเห็นภาพเต็มใบ</div>
+    </div>
+  </div>
+  <div class="scan-btns">
+    <button class="scan-btn-cancel" onclick="closeCardScan()">ยกเลิก</button>
+    <button class="scan-btn-shoot" onclick="captureCard()">📸 ถ่ายบัตร</button>
+  </div>
+</div>
+<canvas id="scanCanvas" style="display:none;"></canvas>
+
+<div class="toast" id="toast"></div>
+
+
 <script>
-// ═══════════════════════════════
-// CONFIG — แก้ค่านี้อย่างเดียว
-// ═══════════════════════════════
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbxyHfCTPsPi7wCnF70Enbe0bqlS28HHvE7lNACjp52SvlCYW_nPWNjn51e2cqzT0jo/exec';
+// ── Config ────────────────────────────────────────────────────
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxz_asERTlgBwsCp9FfurOx1a_pqt3XV6OURyPRaKHMD9ZO469WpEe1Fg5NKxhodXnb/exec';
 
-// ═══════════════════════════════
-// STATE
-// ═══════════════════════════════
-let selectedBranch = null;
-let manualSaleDate  = false;
-
-// ═══════════════════════════════
-// INIT
-// ═══════════════════════════════
-function init() {
-  document.getElementById('received-date').value = todayStr();
-  document.getElementById('received-date').addEventListener('change', refreshSaleDate);
-  refreshSaleDate();
-  setRange('month');
-}
-
-// ═══════════════════════════════
-// DATE UTILS
-// ═══════════════════════════════
-function todayStr() {
-  const d = new Date();
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-}
-
-function pad(n) { return String(n).padStart(2,'0'); }
-
-function dateStrToLocal(str) {
-  // Parse YYYY-MM-DD without timezone shift
-  const [y,m,d] = str.split('-').map(Number);
-  return new Date(y, m-1, d);
-}
-
-function localToStr(d) {
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-}
-
-function subtractBizDays(dateStr, n) {
-  // ลบ 3 วันปฏิทินปกติ (ไม่ใช่วันทำการ)
-  const d = dateStrToLocal(dateStr);
-  d.setDate(d.getDate() - n);
-  return localToStr(d);
-}
-
-function thaiDate(str) {
-  if (!str) return '—';
-  const [y,m,d] = str.split('-').map(Number);
-  const M = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.',
-             'ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-  return `${d} ${M[m]} ${y + 543}`;
-}
-
-function thaiNum(n) {
-  return Number(n).toLocaleString('th-TH', {minimumFractionDigits:2, maximumFractionDigits:2});
-}
-
-// ═══════════════════════════════
-// SALE DATE
-// ═══════════════════════════════
-function refreshSaleDate() {
-  if (manualSaleDate) return;
-  const recv = document.getElementById('received-date').value;
-  if (!recv) return;
-  const sDate = subtractBizDays(recv, 3);
-  const el = document.getElementById('sale-date-text');
-  el.textContent = thaiDate(sDate);
-  el.dataset.val  = sDate;
-}
-
-function toggleSaleDateMode() {
-  manualSaleDate = !manualSaleDate;
-  const manualInput = document.getElementById('sale-date-manual');
-  const toggleBtn   = document.getElementById('edit-sale-toggle');
-
-  if (manualSaleDate) {
-    manualInput.style.display = 'block';
-    manualInput.value = document.getElementById('sale-date-text').dataset.val || '';
-    toggleBtn.textContent = 'ใช้อัตโนมัติ';
-  } else {
-    manualInput.style.display = 'none';
-    toggleBtn.textContent = 'แก้ไขเอง';
-    refreshSaleDate();
-  }
-}
-
-function getSaleDate() {
-  if (manualSaleDate) return document.getElementById('sale-date-manual').value;
-  return document.getElementById('sale-date-text').dataset.val || '';
-}
-
-// ═══════════════════════════════
-// BRANCH PICKER
-// ═══════════════════════════════
-function pickBranch(el) {
-  document.querySelectorAll('.branch-pill').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  selectedBranch = el.dataset.b;
-}
-
-// ═══════════════════════════════
-// SUBMIT
-// ═══════════════════════════════
-async function submitRecord() {
-  const receivedDate = document.getElementById('received-date').value;
-  const saleDate     = getSaleDate();
-  const rawAmount    = document.getElementById('amount').value;
-  const amount       = parseFloat(rawAmount);
-  const notes        = document.getElementById('notes').value.trim();
-
-  if (!receivedDate)        { toast('❌ ระบุวันที่รับเงินก่อน'); return; }
-  if (!saleDate)            { toast('❌ ไม่สามารถระบุวันที่ขายได้'); return; }
-  if (!selectedBranch)      { toast('❌ เลือกสาขาก่อน'); return; }
-  if (!rawAmount || amount <= 0) { toast('❌ ใส่ยอดเงินก่อน'); return; }
-
-  const btn = document.getElementById('submit-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<span>กำลังบันทึก…</span>';
-
-  try {
-    const params = new URLSearchParams({
-  action: 'saveRecord',
-  saleDate, receivedDate,
-  branch: selectedBranch,
-  amount, notes
-});
-const res = await fetch(`${GAS_URL}?${params}`);
-    const data = await res.json();
-
-    if (data.success) {
-      toast('✅ บันทึกสำเร็จ!');
-      document.getElementById('amount').value = '';
-      document.getElementById('notes').value  = '';
-    } else {
-      toast('❌ ' + (data.error || 'เกิดข้อผิดพลาด'));
-    }
-  } catch(e) {
-    toast('❌ เชื่อมต่อ GAS ไม่ได้');
-    console.error(e);
-  }
-
-  btn.disabled = false;
-  btn.innerHTML = '<span>บันทึกยอด</span>';
-}
-
-// ═══════════════════════════════
-// DASHBOARD
-// ═══════════════════════════════
-const BRANCHES = ['อมตะนคร','พระยาสัจจา','บางแสน','อ่าวอุดม'];
-const BRANCH_COLORS = {
-  'อมตะนคร':   '#1A40AA',  // Thai blue
-  'พระยาสัจจา': '#D61F26',  // Thai red
-  'บางแสน':    '#00AAFF',  // sky blue
-  'อ่าวอุดม':  '#FF6B35',  // warm orange-red
+// ── Contract Data ─────────────────────────────────────────────
+const PARTTIME_END = {
+  'อมตะนคร':    '21:00',
+  'พระยาสัจจา': '22:00',
+  'บางแสน':     '00:00',
+  'อ่าวอุดม':   '22:00',
+  'พัทยากลาง':  '00:00'
 };
 
-function setRange(type) {
-  const today = new Date();
-  let s, e;
-  if (type === 'week') {
-    e = new Date(today);
-    s = new Date(today); s.setDate(s.getDate() - 6);
-  } else if (type === 'month') {
-    s = new Date(today.getFullYear(), today.getMonth(), 1);
-    e = new Date(today.getFullYear(), today.getMonth()+1, 0);
-  } else if (type === 'lastmonth') {
-    s = new Date(today.getFullYear(), today.getMonth()-1, 1);
-    e = new Date(today.getFullYear(), today.getMonth(), 0);
+function getContractConfig(type, branch) {
+  if (type === 'fulltime') {
+    return {
+      typeLabel:    'พนักงานประจำสาขา',
+      startTime:    '09:00',
+      endTime:      '17:00',
+      wage:         'วันละ 400 บาท (คิดเป็นรายวัน ตามจำนวนวันที่มาทำงานจริง)',
+      paySchedule:  'วันที่ 1 และวันที่ 16 ของทุกเดือน',
+      sickDeadline: '09:00 น.',
+      hasTrial:     true,
+      lateRule:     'หากมาสายเกิน 10 นาที นายจ้างจะหักค่าจ้างตามจำนวนนาทีที่สายจริง โดยคำนวณจากอัตราค่าจ้างรายวันหารตามชั่วโมงทำงาน'
+    };
+  } else {
+    return {
+      typeLabel:    'พนักงานพาร์ทไทม์',
+      startTime:    '17:00',
+      endTime:      PARTTIME_END[branch] || '22:00',
+      wage:         'ชั่วโมงละ 50 บาท',
+      paySchedule:  'ทุกวันจันทร์',
+      sickDeadline: '17:00 น.',
+      hasTrial:     false,
+      lateRule:     null
+    };
   }
-  document.getElementById('dash-start').value = localToStr(s);
-  document.getElementById('dash-end').value   = localToStr(e);
 }
 
-async function loadDashboard() {
-  const start = document.getElementById('dash-start').value;
-  const end   = document.getElementById('dash-end').value;
-  if (!start || !end) { toast('❌ เลือกช่วงวันที่ก่อน'); return; }
-  if (start > end)    { toast('❌ วันเริ่มต้องน้อยกว่าวันสิ้นสุด'); return; }
+function buildContractHTML(cfg, branch) {
+  const workDays = cfg.typeLabel === 'พนักงานพาร์ทไทม์'
+    ? '<p><strong>วันทำงาน:</strong> วันจันทร์ – วันเสาร์ (หยุดวันอาทิตย์)</p>'
+    : '<p><strong>วันทำงาน:</strong> ตามที่นายจ้างกำหนด</p>';
 
-  const el = document.getElementById('dash-content');
-  el.innerHTML = '<div class="loading-state">⏳ กำลังโหลด…</div>';
+  const trialSection = cfg.hasTrial ? `
+    <div class="c-section">
+      <div class="c-heading">2. ระยะเวลาทดลองงาน</div>
+      <p>ลูกจ้างต้องอยู่ในช่วง <strong>ทดลองงานเป็นเวลา 30 วัน</strong></p>
+      <p>หากนายจ้างพิจารณาเห็นว่าลูกจ้างทำงานไม่มีประสิทธิภาพหรือไม่ผ่านเกณฑ์การประเมิน นายจ้างมีสิทธิ์เลิกจ้างได้ทันที</p>
+    </div>` : '';
 
+  const lateRule = cfg.lateRule ? `<p><strong>การเข้างานสาย:</strong> ${cfg.lateRule}</p>` : '';
+  const n = cfg.hasTrial ? { w:3, l:4, r:5, f:6 } : { w:2, l:3, r:4, f:5 };
+
+  return `
+    <div class="c-section">
+      <div class="c-heading">1. ตำแหน่งงานและหน้าที่ความรับผิดชอบ</div>
+      <p><strong>ตำแหน่ง:</strong> ${cfg.typeLabel} สาขา${branch}</p>
+      <p><strong>หน้าที่หลัก:</strong> เตรียมวัตถุดิบ, จัดออเดอร์ตามที่ได้รับจากลูกค้า, ดูแลรักษาความสะอาดเรียบร้อยภายในร้านและพื้นที่ที่เกี่ยวข้อง และปฏิบัติงานอื่นๆ ตามที่ได้รับมอบหมายจากนายจ้าง</p>
+    </div>
+    ${trialSection}
+    <div class="c-section">
+      <div class="c-heading">${n.w}. ค่าจ้างและเวลาทำงาน</div>
+      ${workDays}
+      <p><strong>เวลาทำงาน:</strong> ${cfg.startTime} น. ถึง ${cfg.endTime} น.</p>
+      <p><strong>อัตราค่าจ้าง:</strong> ${cfg.wage}</p>
+      <p><strong>รอบการจ่ายเงิน:</strong> ${cfg.paySchedule}</p>
+      ${lateRule}
+    </div>
+    <div class="c-section">
+      <div class="c-heading">${n.l}. การลาและการลาออก</div>
+      <p><strong>การลาป่วย:</strong> ต้องแจ้งให้นายจ้างทราบก่อนเวลาเริ่มกะงาน (ก่อน ${cfg.sickDeadline})</p>
+      <p><strong>การลากิจ:</strong> ต้องแจ้งล่วงหน้าอย่างน้อย 2 วัน เพื่อให้นายจ้างจัดหาคนทดแทนได้ทัน</p>
+      <p><strong>การลาออก:</strong> ต้องแจ้งให้นายจ้างทราบล่วงหน้าอย่างน้อย 10 วัน</p>
+    </div>
+    <div class="c-section">
+      <div class="c-heading">${n.r}. กฎระเบียบและข้อบังคับวินัย</div>
+      <ul style="padding-left:18px; display:flex; flex-direction:column; gap:8px; list-style:disc;">
+        <li><strong>การปฏิบัติงาน:</strong> ต้องปฏิบัติหน้าที่ตามที่ได้รับมอบหมายอย่างครบถ้วน และต้องปฏิบัติตามคำสั่งของนายจ้างอย่างเคร่งครัด ห้ามฝ่าฝืนคำสั่งโดยเด็ดขาด</li>
+        <li><strong>ความสะอาด:</strong> ต้องรักษาความสะอาดเรียบร้อยของพื้นที่ทำงานและอุปกรณ์ต่างๆ ตลอดเวลาตามมาตรฐานของร้าน</li>
+        <li><strong>บุคคลภายนอก:</strong> ห้ามนำบุคคลภายนอก (เพื่อน, ญาติ หรือบุคคลอื่นที่ไม่ใช่พนักงาน) เข้ามาในบริเวณร้านหรือพื้นที่ปฏิบัติงานโดยไม่ได้รับอนุญาตจากนายจ้าง</li>
+        <li><strong>สิ่งมึนเมา:</strong> ห้ามดื่มเครื่องดื่มแอลกอฮอล์ หรือเสพสารเสพติดทุกชนิดในเวลางาน หรือมาทำงานในสภาพมึนเมาเด็ดขาด</li>
+        <li><strong>ทรัพย์สิน:</strong> ห้ามนำทรัพย์สินของร้าน (เงินสด, วัตถุดิบ, ของใช้) ออกนอกพื้นที่โดยไม่ได้รับอนุญาต หากตรวจพบจะถือว่าเป็นการ "ขโมยทรัพย์สิน" และนายจ้างจะดำเนินคดีตามกฎหมายจนถึงที่สุด</li>
+      </ul>
+    </div>
+    <div class="c-section">
+      <div class="c-heading">${n.f}. การเลิกจ้าง</div>
+      <p>หากลูกจ้างฝ่าฝืนระเบียบวินัยในข้อ ${n.r} หรือ<strong>ละทิ้งหน้าที่โดยไม่แจ้งล่วงหน้า</strong> นายจ้างมีสิทธิ์ยกเลิกสัญญาจ้างและให้ออกได้ทันที โดยไม่ต้องแจ้งล่วงหน้า</p>
+    </div>
+    <p style="font-size:13px; font-weight:400; color:var(--muted); margin-top:16px; padding-top:14px; border-top:1px solid var(--rule-light); line-height:1.85;">
+      สัญญาฉบับนี้ทำขึ้นเป็นสองฉบับมีข้อความถูกต้องตรงกัน ทั้งสองฝ่ายได้อ่านและเข้าใจข้อความโดยละเอียดแล้ว จึงได้ลงลายมือชื่อไว้เป็นสำคัญ
+    </p>`;
+}
+
+// ── State ─────────────────────────────────────────────────────
+let agreed = false, sigDataURL = null, sigHasData = false;
+const files = { 1: null, 2: null, 3: null };
+let pinA = '', pinB = '', submittedData = {};
+let selectedType = '', selectedBranch = '';
+let scanStream = null, currentPickerNum = null;
+
+// ── Selection ─────────────────────────────────────────────────
+function onSelectionChange() {
+  selectedType   = document.getElementById('selType').value;
+  selectedBranch = document.getElementById('selBranch').value;
+  const ready = selectedType && selectedBranch;
+  const badge = document.getElementById('selectionBadge');
+
+  if (ready) {
+    const cfg = getContractConfig(selectedType, selectedBranch);
+    badge.textContent = `${cfg.typeLabel} · สาขา${selectedBranch} · ${cfg.startTime}–${cfg.endTime} น.`;
+    badge.classList.add('show');
+    document.getElementById('blockEmpInfo').style.display = 'block';
+    document.getElementById('blockContract').style.display = 'block';
+    document.getElementById('blockSig').style.display = 'block';
+    document.getElementById('contractBody').innerHTML = buildContractHTML(cfg, selectedBranch);
+    const typeShort = selectedType === 'fulltime' ? 'ประจำ' : 'พาร์ทไทม์';
+    document.getElementById('headerTitle').textContent = `EASY หมี่ไก่ฉีก — สัญญา${typeShort} · ${selectedBranch}`;
+    agreed = false;
+    document.getElementById('agreeRow').classList.remove('checked');
+  } else {
+    badge.classList.remove('show');
+    document.getElementById('blockEmpInfo').style.display = 'none';
+    document.getElementById('blockContract').style.display = 'none';
+    document.getElementById('blockSig').style.display = 'none';
+  }
+}
+
+function toggleAgree() {
+  agreed = !agreed;
+  document.getElementById('agreeRow').classList.toggle('checked', agreed);
+}
+
+// ── Signature ─────────────────────────────────────────────────
+const canvas = document.getElementById('sigCanvas');
+const ctx = canvas.getContext('2d');
+let drawing = false, lastX = 0, lastY = 0;
+
+function initCanvas() {
+  const ratio = window.devicePixelRatio || 1;
+  const w = canvas.parentElement.clientWidth;
+  canvas.width = w * ratio; canvas.height = 200 * ratio;
+  canvas.style.height = '200px';
+  ctx.scale(ratio, ratio);
+  ctx.strokeStyle = '#0F0F0F'; ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+}
+function openSigModal() { document.getElementById('sigModal').style.display='flex'; document.body.style.overflow='hidden'; setTimeout(initCanvas,50); }
+function closeSigModal() { document.getElementById('sigModal').style.display='none'; document.body.style.overflow=''; }
+function clearSigModal() { ctx.clearRect(0,0,canvas.width,canvas.height); document.getElementById('sigPH').style.opacity='1'; sigHasData=false; }
+function confirmSig() {
+  if (!sigHasData) { showToast('กรุณาเซ็นลายเซ็นก่อนยืนยัน'); return; }
+  sigDataURL = canvas.toDataURL('image/png');
+  document.getElementById('sigPreviewImg').src = sigDataURL;
+  document.getElementById('sigStateEmpty').style.display='none';
+  document.getElementById('sigStateDone').style.display='block';
+  closeSigModal();
+}
+function redoSig() { sigDataURL=null; sigHasData=false; document.getElementById('sigStateEmpty').style.display='block'; document.getElementById('sigStateDone').style.display='none'; }
+function getPos(e) {
+  const rect=canvas.getBoundingClientRect(), src=e.touches?e.touches[0]:e, ratio=window.devicePixelRatio||1;
+  return { x:(src.clientX-rect.left)*((canvas.width/ratio)/rect.width), y:(src.clientY-rect.top)*((canvas.height/ratio)/rect.height) };
+}
+canvas.addEventListener('mousedown',e=>{drawing=true;const p=getPos(e);[lastX,lastY]=[p.x,p.y];});
+canvas.addEventListener('mousemove',e=>{if(!drawing)return;const p=getPos(e);ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(p.x,p.y);ctx.stroke();[lastX,lastY]=[p.x,p.y];sigHasData=true;document.getElementById('sigPH').style.opacity='0';});
+canvas.addEventListener('mouseup',()=>drawing=false);
+canvas.addEventListener('mouseleave',()=>drawing=false);
+canvas.addEventListener('touchstart',e=>{e.preventDefault();drawing=true;const p=getPos(e);[lastX,lastY]=[p.x,p.y];},{passive:false});
+canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!drawing)return;const p=getPos(e);ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(p.x,p.y);ctx.stroke();[lastX,lastY]=[p.x,p.y];sigHasData=true;document.getElementById('sigPH').style.opacity='0';},{passive:false});
+canvas.addEventListener('touchend',()=>drawing=false);
+
+// ── Upload picker ─────────────────────────────────────────────
+function openPicker(num) {
+  currentPickerNum = num;
+  const names = {1:'บัตรประชาชน',2:'สำเนาทะเบียนบ้าน',3:'สำเนาหน้าสมุดบัญชี'};
+  document.getElementById('pickerTitle').textContent = names[num];
+  // แสดง scan option เฉพาะเอกสาร 1
+  const scanOpt = document.getElementById('optionScan');
+  scanOpt.style.display = num === 1 ? 'flex' : 'none';
+  document.getElementById('cameraLabel').textContent = num === 1 ? '(สำเนา)' : '';
+  document.getElementById('pickerOverlay').style.display='block';
+  document.getElementById('pickerSheet').style.display='block';
+  document.body.style.overflow='hidden';
+}
+function closePicker() {
+  document.getElementById('pickerOverlay').style.display='none';
+  document.getElementById('pickerSheet').style.display='none';
+  document.body.style.overflow='';
+}
+function chooseCamera() { closePicker(); const i=document.getElementById('inputCam'); i.value=''; i.click(); }
+function chooseGallery() { closePicker(); const i=document.getElementById('inputGal'); i.value=''; i.click(); }
+function handleFile(input) {
+  const file=input.files[0]; const num=currentPickerNum;
+  if (!file||!num) return;
+  files[num]=file;
+  document.getElementById('urow'+num).classList.add('has-file');
+  document.getElementById('sub'+num).textContent='✓ '+(file.name.length>26?file.name.slice(0,24)+'…':file.name);
+  document.getElementById('arr'+num).textContent='✓';
+  const r=new FileReader(); r.onload=e=>{document.getElementById('prev'+num).src=e.target.result;}; r.readAsDataURL(file);
+}
+
+// ── Card Scanner ──────────────────────────────────────────────
+async function chooseCardScan() {
+  closePicker();
   try {
-    const url = `${GAS_URL}?action=getRecords&startDate=${start}&endDate=${end}`;
-    const res  = await fetch(url);
-    const data = await res.json();
+    scanStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }
+    });
+    document.getElementById('scanVideo').srcObject = scanStream;
+    document.getElementById('cardScanModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  } catch(err) {
+    showToast('ไม่สามารถเข้าถึงกล้องได้ — กรุณาใช้ถ่ายรูปแทน');
+    const i=document.getElementById('inputCam'); i.value=''; i.click();
+  }
+}
+function closeCardScan() {
+  if (scanStream) { scanStream.getTracks().forEach(t=>t.stop()); scanStream=null; }
+  document.getElementById('cardScanModal').style.display='none';
+  document.getElementById('scanVideo').srcObject=null;
+  document.body.style.overflow='';
+}
+function captureCard() {
+  const video=document.getElementById('scanVideo');
+  const canvas=document.getElementById('scanCanvas');
+  canvas.width=video.videoWidth; canvas.height=video.videoHeight;
+  canvas.getContext('2d').drawImage(video,0,0);
+  canvas.toBlob(blob=>{
+    const file=new File([blob],`id_card_${Date.now()}.jpg`,{type:'image/jpeg'});
+    const num=currentPickerNum;
+    files[num]=file;
+    document.getElementById('urow'+num).classList.add('has-file');
+    document.getElementById('sub'+num).textContent='✓ สแกนบัตรประชาชนแล้ว';
+    document.getElementById('arr'+num).textContent='✓';
+    const r=new FileReader(); r.onload=e=>{document.getElementById('prev'+num).src=e.target.result;}; r.readAsDataURL(file);
+    closeCardScan();
+  },'image/jpeg',0.92);
+}
 
-    if (!data.success) {
-      el.innerHTML = `<div class="empty-state"><div class="e-icon">❌</div><p>${data.error||'โหลดไม่ได้'}</p></div>`;
-      return;
-    }
-    renderDashboard(data.records, start, end);
-  } catch(e) {
-    el.innerHTML = '<div class="empty-state"><div class="e-icon">❌</div><p>เชื่อมต่อไม่ได้</p></div>';
-    console.error(e);
+// ── Navigation ────────────────────────────────────────────────
+function showPage(n) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page'+n).classList.add('active');
+  for(let i=1;i<=4;i++){const el=document.getElementById('step'+i);el.classList.remove('active','done');if(i<n)el.classList.add('done');if(i===n)el.classList.add('active');}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function goToPage2() {
+  const name=document.getElementById('empName').value.trim();
+  const phone=document.getElementById('empPhone').value.trim();
+  const nick=document.getElementById('empNickname').value.trim();
+  if (!selectedType||!selectedBranch||!name||!phone||!nick||!agreed||!sigDataURL) {
+    document.getElementById('err1').classList.add('show'); return;
+  }
+  document.getElementById('err1').classList.remove('show');
+  showPage(2);
+}
+function goToPage1() { showPage(1); }
+
+// ── Submit ────────────────────────────────────────────────────
+async function submitAll() {
+  if (!files[1]||!files[2]||!files[3]) { document.getElementById('err2').classList.add('show'); return; }
+  document.getElementById('err2').classList.remove('show');
+  document.getElementById('btnSubmit').disabled=true;
+  try {
+    const [f1,f2,f3]=await Promise.all([toB64(files[1]),toB64(files[2]),toB64(files[3])]);
+    const cfg=getContractConfig(selectedType,selectedBranch);
+    submittedData={
+      name:document.getElementById('empName').value.trim(),
+      phone:document.getElementById('empPhone').value.trim(),
+      nickname:document.getElementById('empNickname').value.trim(),
+      timestamp:new Date().toLocaleString('th-TH'),
+      branch:selectedBranch, type:selectedType, typeLabel:cfg.typeLabel,
+      startTime:cfg.startTime, endTime:cfg.endTime, wage:cfg.wage,
+      signature:sigDataURL,
+      idCard:{data:f1,type:files[1].type,name:files[1].name},
+      houseReg:{data:f2,type:files[2].type,name:files[2].name},
+      bankBook:{data:f3,type:files[3].type,name:files[3].name}
+    };
+    showPage(3);
+  } catch(err) {
+    document.getElementById('btnSubmit').disabled=false;
+    showToast('เกิดข้อผิดพลาดในการเตรียมไฟล์ — กรุณาลองใหม่');
   }
 }
 
-function renderDashboard(records, start, end) {
-  const el = document.getElementById('dash-content');
-
-  if (!records || records.length === 0) {
-    el.innerHTML = '<div class="empty-state"><div class="e-icon">🕵️</div><p>ไม่มีข้อมูลในช่วงนี้</p></div>';
-    return;
-  }
-
-  // Totals
-  const total = records.reduce((s,r) => s + Number(r.amount||0), 0);
-
-  // Per-branch
-  const bData = {};
-  BRANCHES.forEach(b => bData[b] = {total:0, count:0});
-  records.forEach(r => {
-    if (bData[r.branch]) {
-      bData[r.branch].total += Number(r.amount||0);
-      bData[r.branch].count++;
-    }
-  });
-
-  const maxBranch = Math.max(...BRANCHES.map(b => bData[b].total), 1);
-
-  // Sort records by sale date desc
-  const sorted = [...records].sort((a,b) => b.saleDate.localeCompare(a.saleDate));
-
-  let html = `
-    <!-- Total -->
-    <div class="total-card">
-      <div class="total-label">ยอดรวม · ${thaiDate(start)} – ${thaiDate(end)}</div>
-      <div class="total-amount">฿${thaiNum(total)}</div>
-      <div class="total-meta">${records.length} รายการ จาก ${BRANCHES.filter(b=>bData[b].count>0).length} สาขา</div>
-    </div>
-
-    <!-- Daily chart -->
-    <div class="card">
-      <div class="card-label">📈 ยอดขายรายวัน</div>
-      <div class="chart-wrap"><canvas id="chart-daily"></canvas></div>
-      <div class="chart-legend" id="chart-legend"></div>
-    </div>
-
-    <!-- Branch comparison -->
-    <div class="card">
-      <div class="card-label">🏪 เปรียบเทียบรายสาขา</div>
-      <div id="branch-compare-rows"></div>
-    </div>
-
-    <!-- Branch grid (mini) -->
-    <div class="branch-grid-2">
-      ${BRANCHES.map(b => `
-        <div class="bcard">
-          <div class="bcard-name">${b}</div>
-          <div class="bcard-amount">฿${thaiNum(bData[b].total)}</div>
-          <div class="bcard-count">${bData[b].count} รายการ</div>
-          <div class="bcard-bar">
-            <div class="bcard-bar-fill" style="width:${Math.round(bData[b].total/maxBranch*100)}%"></div>
-          </div>
-        </div>
-      `).join('')}
-    </div>
-
-    <!-- Records -->
-    <div class="card" style="padding-bottom:6px;">
-      <div class="card-label">📋 รายการทั้งหมด</div>
-      ${sorted.map(r => `
-        <div class="record-item">
-          <div class="record-left">
-            <div class="record-sale-date">${thaiDate(r.saleDate)}</div>
-            <div><span class="record-branch-tag">${r.branch}</span></div>
-            <div class="record-received-date">รับเงิน ${thaiDate(r.receivedDate)}</div>
-            ${r.notes ? `<div class="record-notes">📝 ${r.notes}</div>` : ''}
-          </div>
-          <div class="record-amount">฿${thaiNum(Number(r.amount))}</div>
-        </div>
-      `).join('')}
-    </div>
-  `;
-
-  el.innerHTML = html;
-  setTimeout(() => renderCharts(records, start, end, bData, total), 0);
+// ── PIN ───────────────────────────────────────────────────────
+function updateDots(step,val){for(let i=0;i<4;i++)document.getElementById('d'+step+i).classList.toggle('filled',i<val.length);}
+function typePin(step,digit){
+  if(step==='A'){if(pinA.length>=4)return;pinA+=digit;updateDots('A',pinA);if(pinA.length===4)setTimeout(()=>{document.getElementById('pinStepA').style.display='none';document.getElementById('pinStepB').style.display='block';},200);}
+  else{if(pinB.length>=4)return;pinB+=digit;updateDots('B',pinB);if(pinB.length===4)setTimeout(()=>confirmPin(),200);}
 }
+function delPin(step){if(step==='A'){pinA=pinA.slice(0,-1);updateDots('A',pinA);}else{pinB=pinB.slice(0,-1);updateDots('B',pinB);document.getElementById('errPin').classList.remove('show');}}
+function resetPinA(){pinA='';pinB='';updateDots('A','');updateDots('B','');document.getElementById('errPin').classList.remove('show');document.getElementById('pinStepB').style.display='none';document.getElementById('pinStepA').style.display='block';}
 
-// ═══════════════════════════════
-// CHARTS
-// ═══════════════════════════════
-let chartDailyInstance = null;
-
-function renderCharts(records, start, end, bData, total) {
-  renderDailyChart(records, start, end);
-  renderBranchCompare(bData, total);
-}
-
-function renderDailyChart(records, start, end) {
-  // Build full date range
-  const dateList = [];
-  const cur = dateStrToLocal(start);
-  const endD = dateStrToLocal(end);
-  while (cur <= endD) {
-    dateList.push(localToStr(cur));
-    cur.setDate(cur.getDate() + 1);
-  }
-
-  // Short label: d/m
-  const labels = dateList.map(ds => {
-    const [,m,d] = ds.split('-');
-    return `${parseInt(d)}/${parseInt(m)}`;
-  });
-
-  // Dataset per branch (stacked)
-  const datasets = BRANCHES.map(b => ({
-    label: b,
-    data: dateList.map(date =>
-      records
-        .filter(r => r.saleDate === date && r.branch === b)
-        .reduce((s, r) => s + Number(r.amount), 0)
-    ),
-    backgroundColor: BRANCH_COLORS[b],
-    borderRadius: dateList.length <= 14 ? 4 : 2,
-    borderSkipped: false,
-  }));
-
-  // Destroy old instance
-  if (chartDailyInstance) { chartDailyInstance.destroy(); chartDailyInstance = null; }
-
-  const canvas = document.getElementById('chart-daily');
-  if (!canvas) return;
-
-  chartDailyInstance = new Chart(canvas, {
-    type: 'bar',
-    data: { labels, datasets },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => ` ${ctx.dataset.label}: ฿${thaiNum(ctx.raw)}`
-          }
-        }
-      },
-      scales: {
-        x: {
-          stacked: true,
-          grid: { display: false },
-          ticks: {
-            font: { family: 'Prompt', size: 10 },
-            color: '#8A94A6',
-            maxTicksLimit: dateList.length <= 14 ? dateList.length : 10,
-            maxRotation: 0,
-          },
-          border: { display: false },
-        },
-        y: {
-          stacked: true,
-          grid: { color: '#F0F2F7' },
-          ticks: {
-            font: { family: 'Prompt', size: 10 },
-            color: '#8A94A6',
-            callback: v => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v,
-            maxTicksLimit: 5,
-          },
-          border: { display: false },
-        }
-      },
-      animation: { duration: 500 },
-    }
-  });
-
-  // Render custom legend
-  const legendEl = document.getElementById('chart-legend');
-  if (legendEl) {
-    legendEl.innerHTML = BRANCHES.map(b => `
-      <div class="legend-item">
-        <div class="legend-dot" style="background:${BRANCH_COLORS[b]}"></div>
-        ${b}
-      </div>
-    `).join('');
+async function confirmPin() {
+  if(pinA!==pinB){document.getElementById('errPin').classList.add('show');pinB='';updateDots('B','');return;}
+  document.getElementById('pinStepB').style.display='none';
+  document.getElementById('pinSaving').style.display='block';
+  document.getElementById('progressBlock').style.display='block';
+  setProgress(10,'กำลังเตรียมข้อมูล...');
+  try {
+    setProgress(40,'กำลังส่งข้อมูลและเอกสาร...');
+    await fetch(APPS_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'submitContract',pin:pinA,...submittedData})});
+    setProgress(100,'เสร็จสิ้น');
+    await sleep(400);
+    document.getElementById('finalPinDisplay').textContent=pinA;
+    document.getElementById('successRef').textContent=`อ้างอิง: ${submittedData.name} (${submittedData.nickname}) · ${submittedData.typeLabel} · สาขา${submittedData.branch} | ${submittedData.timestamp}`;
+    showPage(4);
+  } catch(err) {
+    document.getElementById('progressBlock').style.display='none';
+    document.getElementById('pinSaving').style.display='none';
+    document.getElementById('pinStepB').style.display='block';
+    pinB='';updateDots('B','');
+    showToast('ส่งข้อมูลไม่สำเร็จ — กรุณาลองใหม่');
   }
 }
 
-function renderBranchCompare(bData, total) {
-  const container = document.getElementById('branch-compare-rows');
-  if (!container) return;
-
-  // Sort branches by total desc
-  const sorted = [...BRANCHES].sort((a, b) => bData[b].total - bData[a].total);
-  const maxVal = sorted.length ? bData[sorted[0]].total : 1;
-
-  container.innerHTML = sorted.map(b => {
-    const pct = total > 0 ? Math.round(bData[b].total / total * 100) : 0;
-    const barW = maxVal > 0 ? Math.round(bData[b].total / maxVal * 100) : 0;
-    return `
-      <div class="compare-row">
-        <div class="compare-header">
-          <div class="compare-name">
-            <div class="compare-dot" style="background:${BRANCH_COLORS[b]}"></div>
-            ${b}
-          </div>
-          <div class="compare-right">
-            <span class="compare-amount">฿${thaiNum(bData[b].total)}</span>
-            <span class="compare-pct">${pct}%</span>
-          </div>
-        </div>
-        <div class="compare-bar-track">
-          <div class="compare-bar-fill" style="width:${barW}%; background:${BRANCH_COLORS[b]}"></div>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-// ═══════════════════════════════
-// NAV
-// ═══════════════════════════════
-function switchView(v) {
-  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-  document.getElementById('view-'+v).classList.add('active');
-  document.getElementById('nav-'+v).classList.add('active');
-}
-
-// ═══════════════════════════════
-// TOAST
-// ═══════════════════════════════
-function toast(msg, ms=2400) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(t._t);
-  t._t = setTimeout(() => t.classList.remove('show'), ms);
-}
-
-// ═══════════════════════════════
-// START
-// ═══════════════════════════════
-init();
+// ── Helpers ───────────────────────────────────────────────────
+function toB64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});}
+function setProgress(pct,label){document.getElementById('progressFill').style.width=pct+'%';document.getElementById('progressLabel').textContent=label;}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
 </script>
 </body>
 </html>
