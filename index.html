@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ไทยช่วยไทยพลัส - Firebase Realtime</title>
+<title>ไทยช่วยไทยพลัส</title>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght=300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
@@ -11,7 +11,6 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getDatabase, ref, push, set, onValue, query, orderByChild, startAt, endAt } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  // ใส่ค่า Firebase Config ของวิวเรียบร้อยแล้วครับ 🟢
   const firebaseConfig = {
     apiKey: "AIzaSyBH0apV5G9ybf57LUp7G4Ne01eioBwwnn4",
     authDomain: "easy-thai-chuay-thai.firebaseapp.com",
@@ -22,11 +21,9 @@
     appId: "1:944059672521:web:411971683842ac51cb6a18"
   };
 
-  // เริ่มต้นทำงาน Firebase
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // ส่งผ่านฟังก์ชันไปให้ระบบ JavaScript ด้านล่างเรียกใช้ได้
   window.db = db;
   window.dbRef = ref;
   window.dbPush = push;
@@ -586,7 +583,7 @@ body {
   <div class="header-icon">🇹🇭</div>
   <div class="header-text">
     <div class="header-title">ไทยช่วยไทยพลัส</div>
-    <div class="header-sub">บันทึกยอดขายรายสาขา (Real-time Cloud)</div>
+    <div class="header-sub">บันทึกยอดขายรายสาขา</div>
   </div>
 </div>
 
@@ -656,17 +653,18 @@ body {
         <input type="date" class="input" id="dash-end">
       </div>
       <div class="quick-btns">
+        <button class="qbtn" onclick="setRange('today')">วันนี้</button>
         <button class="qbtn" onclick="setRange('week')">7 วันล่าสุด</button>
         <button class="qbtn" onclick="setRange('month')">เดือนนี้</button>
         <button class="qbtn" onclick="setRange('lastmonth')">เดือนที่แล้ว</button>
       </div>
-      <button class="btn-go" onclick="loadDashboard()">สตรีมข้อมูล Real-time</button>
+      <button class="btn-go" onclick="loadDashboard()">ดูยอด →</button>
     </div>
 
     <div id="dash-content">
       <div class="empty-state">
         <div class="e-icon">📊</div>
-        <p>เลือกช่วงวันที่<br>แล้วกดเปิด "สตรีมข้อมูล"</p>
+        <p>เลือกช่วงวันที่<br>แล้วกด "ดูยอด"</p>
       </div>
     </div>
 
@@ -811,7 +809,7 @@ async function submitRecord() {
       createdAt: new Date().toISOString()
     });
 
-    toast('✅ บันทึกเข้าคลาวด์สำเร็จ!');
+    toast('✅ บันทึกสำเร็จ!');
     document.getElementById('amount').value = '';
     document.getElementById('notes').value  = '';
   } catch(e) {
@@ -837,7 +835,10 @@ const BRANCH_COLORS = {
 function setRange(type) {
   const today = new Date();
   let s, e;
-  if (type === 'week') {
+  if (type === 'today') {
+    s = new Date(today);
+    e = new Date(today);
+  } else if (type === 'week') {
     e = new Date(today);
     s = new Date(today); s.setDate(s.getDate() - 6);
   } else if (type === 'month') {
@@ -858,7 +859,7 @@ function loadDashboard() {
   if (start > end)    { toast('❌ วันเริ่มต้องน้อยกว่าวันสิ้นสุด'); return; }
 
   const el = document.getElementById('dash-content');
-  el.innerHTML = '<div class="loading-state">⏳ กำลังเชื่อมต่อท่อส่งข้อมูล (Real-time)…</div>';
+  el.innerHTML = '<div class="loading-state">⏳ กำลังโหลด…</div>';
 
   const recordsRef = window.dbRef(window.db, 'sales_records');
   const q = window.dbQuery(
@@ -881,7 +882,7 @@ function loadDashboard() {
     }
     renderDashboard(records, start, end);
   }, (error) => {
-    el.innerHTML = `<div class="empty-state"><div class="e-icon">❌</div><p>ดึงข้อมูลหลุด: ${error.message}</p></div>`;
+    el.innerHTML = `<div class="empty-state"><div class="e-icon">❌</div><p>โหลดไม่ได้: ${error.message}</p></div>`;
   });
 }
 
@@ -889,7 +890,7 @@ function renderDashboard(records, start, end) {
   const el = document.getElementById('dash-content');
 
   if (!records || records.length === 0) {
-    el.innerHTML = '<div class="empty-state"><div class="e-icon">🕵️</div><p>ไม่มีข้อมูลในช่วงนี้<br>ลองบันทึกยอดเพิ่มดูครับ</p></div>';
+    el.innerHTML = '<div class="empty-state"><div class="e-icon">🕵️</div><p>ไม่มีข้อมูลในช่วงนี้</p></div>';
     return;
   }
 
@@ -908,7 +909,7 @@ function renderDashboard(records, start, end) {
 
   let html = `
     <div class="total-card">
-      <div class="total-label">ยอดรวม · ${thaiDate(start)} – ${thaiDate(end)} (Live 🟢)</div>
+      <div class="total-label">ยอดรวม · ${thaiDate(start)} – ${thaiDate(end)}</div>
       <div class="total-amount">฿${thaiNum(total)}</div>
       <div class="total-meta">${records.length} รายการ จาก ${BRANCHES.filter(b=>bData[b].count>0).length} สาขา</div>
     </div>
@@ -1036,7 +1037,7 @@ function renderDailyChart(records, start, end) {
           border: { display: false },
         }
       },
-      animation: { duration: 300 },
+      animation: { duration: 500 },
     }
   });
 
