@@ -83,6 +83,7 @@ body {
   justify-content: center;
   font-size: 20px;
 }
+.header-text {}
 .header-title {
   font-size: 16px;
   font-weight: 600;
@@ -504,6 +505,9 @@ body {
   width: 100%;
   height: 220px;
 }
+.chart-wrap-sm {
+  height: 180px;
+}
 
 /* ── CHART LEGEND ── */
 .chart-legend {
@@ -525,6 +529,30 @@ body {
   height: 10px;
   border-radius: 3px;
   flex-shrink: 0;
+}
+
+/* ── CHART TABS ── */
+.chart-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.ctab {
+  padding: 5px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 50px;
+  background: var(--bg);
+  font-family: 'Prompt', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ctab.active {
+  border-color: var(--blue);
+  background: rgba(26,64,170,0.07);
+  color: var(--blue);
 }
 
 /* ── BRANCH COMPARE ROWS ── */
@@ -685,7 +713,7 @@ body {
 // ═══════════════════════════════
 let selectedBranch = null;
 let manualSaleDate  = false;
-let currentListenerUnsubscribe = null;
+let currentListenerUnsubscribe = null; // คุมท่อสตรีม Real-time
 
 // ═══════════════════════════════
 // INIT
@@ -778,7 +806,7 @@ function pickBranch(el) {
 }
 
 // ═══════════════════════════════
-// SUBMIT TO FIREBASE
+// ⚡ SUBMIT TO FIREBASE (เนียนอยู่เบื้องหลัง) ⚡
 // ═══════════════════════════════
 async function submitRecord() {
   const receivedDate = document.getElementById('received-date').value;
@@ -852,6 +880,7 @@ function setRange(type) {
   document.getElementById('dash-end').value   = localToStr(e);
 }
 
+// ⚡ เปลี่ยนไส้ในดึงจาก Firebase แบบไม่ต้องรีเฟรชหน้าจอ ⚡
 function loadDashboard() {
   const start = document.getElementById('dash-start').value;
   const end   = document.getElementById('dash-end').value;
