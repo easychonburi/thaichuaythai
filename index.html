@@ -817,11 +817,13 @@ async function submitRecord() {
   btn.innerHTML = '<span>กำลังบันทึก…</span>';
 
   try {
-    const res = await fetch(GAS_URL, {
-      method:  'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body:    JSON.stringify({ action:'saveRecord', saleDate, receivedDate, branch:selectedBranch, amount, notes })
-    });
+    const params = new URLSearchParams({
+  action: 'saveRecord',
+  saleDate, receivedDate,
+  branch: selectedBranch,
+  amount, notes
+});
+const res = await fetch(`${GAS_URL}?${params}`);
     const data = await res.json();
 
     if (data.success) {
