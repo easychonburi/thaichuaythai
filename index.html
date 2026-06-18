@@ -3,9 +3,41 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ไทยช่วยไทยพลัส</title>
-<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>ไทยช่วยไทยพลัส - Firebase Realtime</title>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght=300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, push, set, onValue, query, orderByChild, startAt, endAt } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  // ใส่ค่า Firebase Config ของวิวเรียบร้อยแล้วครับ 🟢
+  const firebaseConfig = {
+    apiKey: "AIzaSyBH0apV5G9ybf57LUp7G4Ne01eioBwwnn4",
+    authDomain: "easy-thai-chuay-thai.firebaseapp.com",
+    databaseURL: "https://easy-thai-chuay-thai-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "easy-thai-chuay-thai",
+    storageBucket: "easy-thai-chuay-thai.firebasestorage.app",
+    messagingSenderId: "944059672521",
+    appId: "1:944059672521:web:411971683842ac51cb6a18"
+  };
+
+  // เริ่มต้นทำงาน Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // ส่งผ่านฟังก์ชันไปให้ระบบ JavaScript ด้านล่างเรียกใช้ได้
+  window.db = db;
+  window.dbRef = ref;
+  window.dbPush = push;
+  window.dbSet = set;
+  window.dbOnValue = onValue;
+  window.dbQuery = query;
+  window.dbOrderBy = orderByChild;
+  window.dbStart = startAt;
+  window.dbEnd = endAt;
+</script>
+
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
@@ -54,7 +86,6 @@ body {
   justify-content: center;
   font-size: 20px;
 }
-.header-text {}
 .header-title {
   font-size: 16px;
   font-weight: 600;
@@ -476,9 +507,6 @@ body {
   width: 100%;
   height: 220px;
 }
-.chart-wrap-sm {
-  height: 180px;
-}
 
 /* ── CHART LEGEND ── */
 .chart-legend {
@@ -500,30 +528,6 @@ body {
   height: 10px;
   border-radius: 3px;
   flex-shrink: 0;
-}
-
-/* ── CHART TABS ── */
-.chart-tabs {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 14px;
-}
-.ctab {
-  padding: 5px 12px;
-  border: 1.5px solid var(--border);
-  border-radius: 50px;
-  background: var(--bg);
-  font-family: 'Prompt', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--muted);
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.ctab.active {
-  border-color: var(--blue);
-  background: rgba(26,64,170,0.07);
-  color: var(--blue);
 }
 
 /* ── BRANCH COMPARE ROWS ── */
@@ -578,25 +582,20 @@ body {
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="header">
   <div class="header-icon">🇹🇭</div>
   <div class="header-text">
     <div class="header-title">ไทยช่วยไทยพลัส</div>
-    <div class="header-sub">บันทึกยอดขายรายสาขา</div>
+    <div class="header-sub">บันทึกยอดขายรายสาขา (Real-time Cloud)</div>
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- MAIN -->
 <div class="main">
 
-  <!-- ── VIEW: บันทึก ── -->
   <div class="view active" id="view-record">
 
-    <!-- DATE CARD -->
     <div class="card">
       <div class="card-label">📅 วันที่</div>
 
@@ -618,7 +617,6 @@ body {
       </div>
     </div>
 
-    <!-- BRANCH CARD -->
     <div class="card">
       <div class="card-label">🏪 สาขา</div>
       <div class="branch-grid" id="branch-grid">
@@ -629,7 +627,6 @@ body {
       </div>
     </div>
 
-    <!-- AMOUNT CARD -->
     <div class="card">
       <div class="card-label">💰 ยอดเงิน</div>
       <div class="field">
@@ -649,11 +646,7 @@ body {
       <span>บันทึกยอด</span>
     </button>
 
-  </div><!-- /view-record -->
-
-
-  <!-- ── VIEW: แดชบอร์ด ── -->
-  <div class="view" id="view-dashboard">
+  </div><div class="view" id="view-dashboard">
 
     <div class="card">
       <div class="card-label">📆 เลือกช่วงวันที่ขาย</div>
@@ -667,22 +660,17 @@ body {
         <button class="qbtn" onclick="setRange('month')">เดือนนี้</button>
         <button class="qbtn" onclick="setRange('lastmonth')">เดือนที่แล้ว</button>
       </div>
-      <button class="btn-go" onclick="loadDashboard()">ดูยอด →</button>
+      <button class="btn-go" onclick="loadDashboard()">สตรีมข้อมูล Real-time</button>
     </div>
 
     <div id="dash-content">
       <div class="empty-state">
         <div class="e-icon">📊</div>
-        <p>เลือกช่วงวันที่<br>แล้วกด "ดูยอด"</p>
+        <p>เลือกช่วงวันที่<br>แล้วกดเปิด "สตรีมข้อมูล"</p>
       </div>
     </div>
 
-  </div><!-- /view-dashboard -->
-
-</div><!-- /main -->
-
-<!-- BOTTOM NAV -->
-<div class="bottom-nav">
+  </div></div><div class="bottom-nav">
   <button class="nav-btn active" id="nav-record" onclick="switchView('record')">
     <span class="nav-icon">✏️</span>
     บันทึก
@@ -695,15 +683,11 @@ body {
 
 <script>
 // ═══════════════════════════════
-// CONFIG — แก้ค่านี้อย่างเดียว
-// ═══════════════════════════════
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbxyHfCTPsPi7wCnF70Enbe0bqlS28HHvE7lNACjp52SvlCYW_nPWNjn51e2cqzT0jo/exec';
-
-// ═══════════════════════════════
 // STATE
 // ═══════════════════════════════
 let selectedBranch = null;
 let manualSaleDate  = false;
+let currentListenerUnsubscribe = null;
 
 // ═══════════════════════════════
 // INIT
@@ -726,7 +710,6 @@ function todayStr() {
 function pad(n) { return String(n).padStart(2,'0'); }
 
 function dateStrToLocal(str) {
-  // Parse YYYY-MM-DD without timezone shift
   const [y,m,d] = str.split('-').map(Number);
   return new Date(y, m-1, d);
 }
@@ -736,7 +719,6 @@ function localToStr(d) {
 }
 
 function subtractBizDays(dateStr, n) {
-  // ลบ 3 วันปฏิทินปกติ (ไม่ใช่วันทำการ)
   const d = dateStrToLocal(dateStr);
   d.setDate(d.getDate() - n);
   return localToStr(d);
@@ -798,11 +780,11 @@ function pickBranch(el) {
 }
 
 // ═══════════════════════════════
-// SUBMIT
+// SUBMIT TO FIREBASE
 // ═══════════════════════════════
 async function submitRecord() {
   const receivedDate = document.getElementById('received-date').value;
-  const saleDate     = getSaleDate();
+  const saleDate      = getSaleDate();
   const rawAmount    = document.getElementById('amount').value;
   const amount       = parseFloat(rawAmount);
   const notes        = document.getElementById('notes').value.trim();
@@ -817,24 +799,23 @@ async function submitRecord() {
   btn.innerHTML = '<span>กำลังบันทึก…</span>';
 
   try {
-    const params = new URLSearchParams({
-  action: 'saveRecord',
-  saleDate, receivedDate,
-  branch: selectedBranch,
-  amount, notes
-});
-const res = await fetch(`${GAS_URL}?${params}`);
-    const data = await res.json();
+    const recordsRef = window.dbRef(window.db, 'sales_records');
+    const newRecordRef = window.dbPush(recordsRef);
+    
+    await window.dbSet(newRecordRef, {
+      saleDate: saleDate,
+      receivedDate: receivedDate,
+      branch: selectedBranch,
+      amount: amount,
+      notes: notes,
+      createdAt: new Date().toISOString()
+    });
 
-    if (data.success) {
-      toast('✅ บันทึกสำเร็จ!');
-      document.getElementById('amount').value = '';
-      document.getElementById('notes').value  = '';
-    } else {
-      toast('❌ ' + (data.error || 'เกิดข้อผิดพลาด'));
-    }
+    toast('✅ บันทึกเข้าคลาวด์สำเร็จ!');
+    document.getElementById('amount').value = '';
+    document.getElementById('notes').value  = '';
   } catch(e) {
-    toast('❌ เชื่อมต่อ GAS ไม่ได้');
+    toast('❌ บันทึกไม่สำเร็จ: ' + e.message);
     console.error(e);
   }
 
@@ -843,14 +824,14 @@ const res = await fetch(`${GAS_URL}?${params}`);
 }
 
 // ═══════════════════════════════
-// DASHBOARD
+// DASHBOARD WITH REALTIME STREAM
 // ═══════════════════════════════
 const BRANCHES = ['อมตะนคร','พระยาสัจจา','บางแสน','อ่าวอุดม'];
 const BRANCH_COLORS = {
-  'อมตะนคร':   '#1A40AA',  // Thai blue
-  'พระยาสัจจา': '#D61F26',  // Thai red
-  'บางแสน':    '#00AAFF',  // sky blue
-  'อ่าวอุดม':  '#FF6B35',  // warm orange-red
+  'อมตะนคร':   '#1A40AA',
+  'พระยาสัจจา': '#D61F26',
+  'บางแสน':    '#00AAFF',
+  'อ่าวอุดม':  '#FF6B35',
 };
 
 function setRange(type) {
@@ -870,43 +851,49 @@ function setRange(type) {
   document.getElementById('dash-end').value   = localToStr(e);
 }
 
-async function loadDashboard() {
+function loadDashboard() {
   const start = document.getElementById('dash-start').value;
   const end   = document.getElementById('dash-end').value;
   if (!start || !end) { toast('❌ เลือกช่วงวันที่ก่อน'); return; }
   if (start > end)    { toast('❌ วันเริ่มต้องน้อยกว่าวันสิ้นสุด'); return; }
 
   const el = document.getElementById('dash-content');
-  el.innerHTML = '<div class="loading-state">⏳ กำลังโหลด…</div>';
+  el.innerHTML = '<div class="loading-state">⏳ กำลังเชื่อมต่อท่อส่งข้อมูล (Real-time)…</div>';
 
-  try {
-    const url = `${GAS_URL}?action=getRecords&startDate=${start}&endDate=${end}`;
-    const res  = await fetch(url);
-    const data = await res.json();
+  const recordsRef = window.dbRef(window.db, 'sales_records');
+  const q = window.dbQuery(
+    recordsRef,
+    window.dbOrderBy('saleDate'),
+    window.dbStart(start),
+    window.dbEnd(end)
+  );
 
-    if (!data.success) {
-      el.innerHTML = `<div class="empty-state"><div class="e-icon">❌</div><p>${data.error||'โหลดไม่ได้'}</p></div>`;
-      return;
-    }
-    renderDashboard(data.records, start, end);
-  } catch(e) {
-    el.innerHTML = '<div class="empty-state"><div class="e-icon">❌</div><p>เชื่อมต่อไม่ได้</p></div>';
-    console.error(e);
+  if (currentListenerUnsubscribe) {
+    currentListenerUnsubscribe();
   }
+
+  currentListenerUnsubscribe = window.dbOnValue(q, (snapshot) => {
+    const records = [];
+    if (snapshot.exists()) {
+      snapshot.forEach((childSnapshot) => {
+        records.push(childSnapshot.val());
+      });
+    }
+    renderDashboard(records, start, end);
+  }, (error) => {
+    el.innerHTML = `<div class="empty-state"><div class="e-icon">❌</div><p>ดึงข้อมูลหลุด: ${error.message}</p></div>`;
+  });
 }
 
 function renderDashboard(records, start, end) {
   const el = document.getElementById('dash-content');
 
   if (!records || records.length === 0) {
-    el.innerHTML = '<div class="empty-state"><div class="e-icon">🕵️</div><p>ไม่มีข้อมูลในช่วงนี้</p></div>';
+    el.innerHTML = '<div class="empty-state"><div class="e-icon">🕵️</div><p>ไม่มีข้อมูลในช่วงนี้<br>ลองบันทึกยอดเพิ่มดูครับ</p></div>';
     return;
   }
 
-  // Totals
   const total = records.reduce((s,r) => s + Number(r.amount||0), 0);
-
-  // Per-branch
   const bData = {};
   BRANCHES.forEach(b => bData[b] = {total:0, count:0});
   records.forEach(r => {
@@ -917,32 +904,26 @@ function renderDashboard(records, start, end) {
   });
 
   const maxBranch = Math.max(...BRANCHES.map(b => bData[b].total), 1);
-
-  // Sort records by sale date desc
   const sorted = [...records].sort((a,b) => b.saleDate.localeCompare(a.saleDate));
 
   let html = `
-    <!-- Total -->
     <div class="total-card">
-      <div class="total-label">ยอดรวม · ${thaiDate(start)} – ${thaiDate(end)}</div>
+      <div class="total-label">ยอดรวม · ${thaiDate(start)} – ${thaiDate(end)} (Live 🟢)</div>
       <div class="total-amount">฿${thaiNum(total)}</div>
       <div class="total-meta">${records.length} รายการ จาก ${BRANCHES.filter(b=>bData[b].count>0).length} สาขา</div>
     </div>
 
-    <!-- Daily chart -->
     <div class="card">
       <div class="card-label">📈 ยอดขายรายวัน</div>
       <div class="chart-wrap"><canvas id="chart-daily"></canvas></div>
       <div class="chart-legend" id="chart-legend"></div>
     </div>
 
-    <!-- Branch comparison -->
     <div class="card">
       <div class="card-label">🏪 เปรียบเทียบรายสาขา</div>
       <div id="branch-compare-rows"></div>
     </div>
 
-    <!-- Branch grid (mini) -->
     <div class="branch-grid-2">
       ${BRANCHES.map(b => `
         <div class="bcard">
@@ -956,7 +937,6 @@ function renderDashboard(records, start, end) {
       `).join('')}
     </div>
 
-    <!-- Records -->
     <div class="card" style="padding-bottom:6px;">
       <div class="card-label">📋 รายการทั้งหมด</div>
       ${sorted.map(r => `
@@ -988,7 +968,6 @@ function renderCharts(records, start, end, bData, total) {
 }
 
 function renderDailyChart(records, start, end) {
-  // Build full date range
   const dateList = [];
   const cur = dateStrToLocal(start);
   const endD = dateStrToLocal(end);
@@ -997,13 +976,11 @@ function renderDailyChart(records, start, end) {
     cur.setDate(cur.getDate() + 1);
   }
 
-  // Short label: d/m
   const labels = dateList.map(ds => {
     const [,m,d] = ds.split('-');
     return `${parseInt(d)}/${parseInt(m)}`;
   });
 
-  // Dataset per branch (stacked)
   const datasets = BRANCHES.map(b => ({
     label: b,
     data: dateList.map(date =>
@@ -1016,7 +993,6 @@ function renderDailyChart(records, start, end) {
     borderSkipped: false,
   }));
 
-  // Destroy old instance
   if (chartDailyInstance) { chartDailyInstance.destroy(); chartDailyInstance = null; }
 
   const canvas = document.getElementById('chart-daily');
@@ -1060,11 +1036,10 @@ function renderDailyChart(records, start, end) {
           border: { display: false },
         }
       },
-      animation: { duration: 500 },
+      animation: { duration: 300 },
     }
   });
 
-  // Render custom legend
   const legendEl = document.getElementById('chart-legend');
   if (legendEl) {
     legendEl.innerHTML = BRANCHES.map(b => `
@@ -1080,7 +1055,6 @@ function renderBranchCompare(bData, total) {
   const container = document.getElementById('branch-compare-rows');
   if (!container) return;
 
-  // Sort branches by total desc
   const sorted = [...BRANCHES].sort((a, b) => bData[b].total - bData[a].total);
   const maxVal = sorted.length ? bData[sorted[0]].total : 1;
 
